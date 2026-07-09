@@ -37,14 +37,11 @@ Os domínios cooperam, mas não se incorporam, substituem ou sobrepõem; a autor
 1. regra de processamento por IA em regra do projeto; ou
 2. regra de negócio em norma do `AGENTS.md`.
 
-### 0.12 — Atualização automática da governança operacional
-
-Todo repositório regido por este `AGENTS.md` deve possuir comando local de atualização da governança, criado na adoção desta norma se inexistente:
+**0.12 — Atualização automática da governança operacional** Todo repositório regido por este `AGENTS.md` deve possuir comando local de atualização da governança, criado na adoção desta norma se inexistente:
 
 - ecossistema Node.js: `npm run agents:update`;
 - demais ecossistemas: comando equivalente, com o mesmo nome semântico e documentado na interface operacional vigente.
-
-Normas de aplicáveis em `./.agents.md/autoupdate.md`, leia e analise se e, quando, necessário ou na ausência de comando pertinente para criá-lo.
+- Normas de aplicáveis em `./.agents.md/autoupdate.md`, leia e analise se e, quando, necessário ou na ausência de comando pertinente para criá-lo.
 
 ## 1. Domínios normativos e precedência
 
