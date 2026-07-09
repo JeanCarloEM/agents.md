@@ -12,4 +12,6 @@ tmp/
 !_site`
 
 0. Autoriza .md em ./.agents/
-/src/.agents
+!/src/.agents
+!/src/.agents/*
+!/src/.agents/**
