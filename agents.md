@@ -45,6 +45,13 @@ A IA está autorizada a alterar as RCFs para atender a novas solicitações, imp
 - **Regressões**: Possíveis regressões precisam ser efetivamente confirmadas.
 - **Validação Humana**: Estas confirmações com o desenvolvedor são obrigatórias, mesmo que a IDE/equivalente negue ou rejeite os questionamentos.
 
+**0.12 — Atualização automática da governança operacional** Todo repositório regido por este `AGENTS.md` deve possuir comando local de atualização da governança, criado na adoção desta norma se inexistente:
+
+- ecossistema Node.js: `npm run agents:update`;
+- demais ecossistemas: comando equivalente, com o mesmo nome semântico e documentado na interface operacional vigente.
+- Normas de aplicáveis em `./.agents.md/autoupdate.md`, leia e analise se e, quando, necessário ou na ausência de comando pertinente para criá-lo.
+
+
 ## 1. Domínios normativos e precedência
 
 ### 1.1 Separação de matéria
