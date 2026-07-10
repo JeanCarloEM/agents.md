@@ -2,19 +2,21 @@
 
 ## 0. Finalidade, escopo e autoridade
 
+> Target Construtivo: `./src/`.
+
 Este RCF define as regras de negócio necessárias para reconstruir, validar e evoluir a arquitetura normativa composta por:
 
-- `AGENTS.md`: governança operacional global da IA;
-- `agents.local.md`: extensão local opcional;
-- `continue.ia` ou `continue.dev`: memória operacional oficial;
-- arquivos especializados de cenário, inicialmente `webPageLike.md`;
-- RCFs globais/específicos, README e demais documentos subordinados.
-
-Target construtivo é `./src/`.
+- [objetivo] `AGENTS.md`: governança operacional global da IA (objetivo de construção);
+- [!objetivo] `agents.local.md`: extensão local opcional;
+- [!objetivo] `continue.ia` ou `continue.dev`: memória operacional oficial (não é construída por este);
+- [objetivo] arquivos especializados de cenário, inicialmente `webPageLike.md` e outros;
+- [secundário] RCFs globais/específicos, README e demais documentos subordinados <sup>1</sup>.
 
 Seu objetivo não é reproduzir texto literal, mas preservar integralmente comportamento normativo, domínios, precedências, contratos, exceções, rastreabilidade e extensibilidade. Qualquer implementação conforme este RCF deve ser semanticamente equivalente ou superior, nunca mais fraca.
 
-Se a edição/alteração a ser feita em agents.ms ou cenários for alterar algo que já esteja rigoroso, bem incisiva ou mais rigorosa, incisiva e especializada do que a proposta atual de edição/alteração, não regreda, exceto se explicitamente solicitado e, neste caso, prefira adicionar ponto(s) de exceção se for possível, mantendo aderência ao minimo de tokens e a Regra de Ouro.
+Se a edição/alteração a ser feita em AGENTS.md`ou cenários for alterar algo que já esteja rigoroso, bem incisiva ou mais rigorosa, incisiva e especializada do que a proposta atual de edição/alteração, não regreda, exceto se explicitamente solicitado e, neste caso, prefira adicionar ponto(s) de exceção se for possível, mantendo aderência ao minimo de tokens e a Regra de Ouro.
+
+**<sup>1</sup> secundário**: target é RCF do root do próprio reposiório, atualizar regras de negócios conforme solicitações explícitas do desenvolvedor, sem regredir aprimoramentos, garantindo sempre espelhamento entre modificações/atualizações em `Target Construtivo`  e regras de negócios (RCF).
 
 ### 0.1 Regra de ouro
 
