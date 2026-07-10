@@ -6,9 +6,9 @@
 
 Este RCF define as regras de negócio necessárias para reconstruir, validar e evoluir a arquitetura normativa composta por:
 
-- [objetivo] `AGENTS.md`: governança operacional global da IA (objetivo de construção);
-- [!objetivo] `agents.local.md`: extensão local opcional;
-- [!objetivo] `continue.ia` ou `continue.dev`: memória operacional oficial (não é construída por este);
+- [objetivo] `AGENTS.md`: governança operacional global da IA ;
+- [!objetivo] `agents.local.md`: extensão local opcional [referência];
+- [!objetivo] `continue.ia` ou `continue.dev`: memória operacional oficial [referência];
 - [objetivo] arquivos especializados de cenário, inicialmente `webPageLike.md` e outros;
 - [secundário] RCFs globais/específicos, README e demais documentos subordinados <sup>1</sup>.
 
@@ -17,6 +17,8 @@ Seu objetivo não é reproduzir texto literal, mas preservar integralmente compo
 Se a edição/alteração a ser feita em AGENTS.md`ou cenários for alterar algo que já esteja rigoroso, bem incisiva ou mais rigorosa, incisiva e especializada do que a proposta atual de edição/alteração, não regreda, exceto se explicitamente solicitado e, neste caso, prefira adicionar ponto(s) de exceção se for possível, mantendo aderência ao minimo de tokens e a Regra de Ouro.
 
 **<sup>1</sup> Secundário:** neste caso específico, o *target* é o RCF localizado no root do próprio repositório, atualizar sua especificação conforme solicitações explícitas do desenvolvedor, preservando e consolidando todos os aprimoramentos já incorporados, vedando regressões. Sempre que modificações no **Target Construtivo** alterarem, ampliarem, restringirem ou impactarem regras de negócio, garantir seu espelhamento integral, consistente e sincronizado no próprio RCF.
+
+**referência**: a normatização correspondente deve ser feita, mas a criação do arquivo não.
 
 ### 0.1 Regra de ouro
 
