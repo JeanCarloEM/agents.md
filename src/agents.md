@@ -439,7 +439,7 @@ Os RCFs pertinentes DEVEM normatizar, quando aplicável:
 
 ## 15. “Implementações em andamento”
 
-A raiz DEVE conter um `.md` gerado por `agent:handoff` (§18.2) a partir do `continue.ia`/`continue.dev`, nunca editado manualmente e linkado no README. Finalidade exclusiva: resumo visual ultra-sucinto das FTs ativas; omitir escopo `Negócio`, salvo regra diversa do RCF.
+A raiz DEVE conter um `handoff.md` gerado por `agent:handoff` (§18.2) a partir do `continue.ia`/`continue.dev`, nunca editado manualmente e linkado no README. Finalidade exclusiva: resumo visual ultra-sucinto das FTs ativas; omitir escopo `Negócio`, salvo regra diversa do RCF, contendo no máximo 1k de tokens.
 
 ### 15.1 Conteúdo
 
