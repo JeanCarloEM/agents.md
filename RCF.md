@@ -1,4 +1,4 @@
-# RCF — Reconstrução da Governança Operacional e dos Cenários
+# RCF — Criação e Reconstrução da Governança Operacional e dos Cenários
 
 ## 0. Finalidade, escopo e autoridade
 
