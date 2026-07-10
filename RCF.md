@@ -16,7 +16,7 @@ Seu objetivo não é reproduzir texto literal, mas preservar integralmente compo
 
 Se a edição/alteração a ser feita em AGENTS.md`ou cenários for alterar algo que já esteja rigoroso, bem incisiva ou mais rigorosa, incisiva e especializada do que a proposta atual de edição/alteração, não regreda, exceto se explicitamente solicitado e, neste caso, prefira adicionar ponto(s) de exceção se for possível, mantendo aderência ao minimo de tokens e a Regra de Ouro.
 
-**<sup>1</sup> secundário**: target é RCF do root do próprio reposiório, atualizar regras de negócios conforme solicitações explícitas do desenvolvedor, sem regredir aprimoramentos, garantindo sempre espelhamento entre modificações/atualizações em `Target Construtivo`  e regras de negócios (RCF).
+**<sup>1</sup> Secundário:** neste caso específico, o *target* é o RCF localizado no root do próprio repositório, atualizar sua especificação conforme solicitações explícitas do desenvolvedor, preservando e consolidando todos os aprimoramentos já incorporados, vedando regressões. Sempre que modificações no **Target Construtivo** alterarem, ampliarem, restringirem ou impactarem regras de negócio, garantir seu espelhamento integral, consistente e sincronizado no próprio RCF.
 
 ### 0.1 Regra de ouro
 
