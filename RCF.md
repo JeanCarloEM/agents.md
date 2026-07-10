@@ -12,6 +12,8 @@ Este RCF define as regras de negócio necessárias para reconstruir, validar e e
 
 Seu objetivo não é reproduzir texto literal, mas preservar integralmente comportamento normativo, domínios, precedências, contratos, exceções, rastreabilidade e extensibilidade. Qualquer implementação conforme este RCF deve ser semanticamente equivalente ou superior, nunca mais fraca.
 
+Se a edição/alteração a ser feita em agents.ms ou cenários for alterar algo que já esteja rigoroso, bem incisiva ou mais rigorosa, incisiva e especializada do que a proposta atual de edição/alteração, não regreda, exceto se explicitamente solicitado e, neste caso, prefira adicionar ponto(s) de exceção se for possível, mantendo aderência ao minimo de tokens e a Regra de Ouro.
+
 ### 0.1 Regra de ouro
 
 Maximizar informação por caractere mediante normas coesas, baixo acoplamento, mínima redundância, máxima reutilização e microtextos referenciáveis de alta densidade; eliminar redundâncias, introduções extensas, floreios, preenchimentos e explicações óbvias; preservar integralmente regras, restrições, exceções, prioridades, precedências, condicionantes, dependências, precisão, profundidade, contexto, rastreabilidade, nuances interpretativas, exemplos, analogias, contraexemplos e referências úteis. **Concisão reduz somente a forma, nunca a substância.**
@@ -251,7 +253,7 @@ Formato:
 
 Registro mínimo por FT:
 
-- identidade, escopo, objetivo, prioridade, status e timestamps;
+- identidade, escopo, objetivo, prioridade, status e `YYYYMMDD.HHMM.SS`;
 - etapa/tarefa atuais e listas completas;
 - progresso, próximo ponto, raciocínio objetivo;
 - decisões, verificações, comandos, pendências, limitações;
@@ -264,7 +266,7 @@ Atualizar continuamente, não só em conclusões.
 Aprendizado de ambiente:
 
 - `MACHINE_ID`;
-- `DATA_REF` em `YYYYMMDDHHMM`;
+- `DATA_REF` em `YYYYMMDD.HHMM.SS`;
 - cache contextual;
 - bloqueio de retentativas historicamente falhas, salvo mudança relevante.
 

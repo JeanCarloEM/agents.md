@@ -137,7 +137,7 @@ Cada FT deve conter:
 - objetivo sucinto, evolutivo quando representar melhor o contexto;
 - prioridade e status;
 - escopo `Técnico` ou `Negócio`;
-- início, última atualização e conclusão em timestamp;
+- início, última atualização e conclusão em `YYYYMMDD.HHMM.SS`;
 - planejamento integral de etapas e tarefas;
 - estado de interrupção/retomada, quando aplicável.
 
@@ -235,7 +235,7 @@ Deve ser rastreável, indexável, legível por humanos/máquinas/IAs e segregáv
 Registrar separadamente:
 
 - id, nome, escopo, objetivo, prioridade e status;
-- timestamps de início, última atualização e conclusão;
+- `YYYYMMDD.HHMM.SS` de início, última atualização e conclusão;
 - etapa atual `X/N` e nome;
 - lista integral de etapas;
 - tarefas planejadas, atual/em execução e concluídas;
@@ -274,7 +274,7 @@ Atualizar durante toda a execução, não apenas ao concluir etapa/tarefa, inclu
 Manter base concisa e dinâmica de problemas, tentativas, soluções e ajustes:
 
 - `MACHINE_ID`: vincular cada registro à máquina/sistema. Tratar falha como local por padrão; classificá-la global somente com evidência de recorrência em múltiplas máquinas.
-- `DATA_REF`: última atualização obrigatória em `YYYYMMDDHHMM`, permitindo expurgo de registros obsoletos.
+- `DATA_REF`: última atualização obrigatória em `YYYYMMDD.HHMM.SS`, permitindo expurgo de registros obsoletos.
 - `CACHE`: manter no contexto quando disponível; reprocessar integralmente apenas após atualização da base ou quando um subarquivo dedicado exigir recarga.
 - Bloquear repetição de ação historicamente falha/insuficiente. Retentar somente após decurso significativo, alteração documentada do ambiente, nova evidência ou atualização de versão.
 
