@@ -915,12 +915,12 @@ Além da execução manual, deve detectar push contendo um commit cujo único ar
 
 ou
 
-`release` com extensão autorizada pelo RCF.
+Nenhuma extensão é autorizada neste RCF; somente `release` é válido.
 
 Regras:
 
 - O arquivo deve estar localizado no root do repositório.
-- A extensão, caso exista, deve ser ignorada.
+- O arquivo NÃO DEVE possuir extensão.
 - A existência do arquivo deve funcionar exclusivamente como gatilho de release.
 - COnteúdo do arquivo indica a versão a ser usada e usa o padrão `0.0.0-beta` ou apenas `0.0.0` ou resumido `0.0`.
 
