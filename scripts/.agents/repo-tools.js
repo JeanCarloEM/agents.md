@@ -77,6 +77,124 @@ const COMMANDS = {
   },
 };
 
+Object.assign(COMMANDS, {
+  "agent:setup": {
+    description: "valida prerequisitos locais sem instalar dependencias",
+    run: setup,
+    status: "available",
+  },
+  "agent:doctor": {
+    description: "diagnostica arquivos, comandos e estado local",
+    run: doctor,
+    status: "available",
+  },
+  "agent:context": {
+    description: "gera contexto executivo compacto",
+    run: context,
+    status: "available",
+  },
+  "agent:workspace": {
+    description: "gera snapshot compacto do workspace",
+    run: workspace,
+    status: "available",
+  },
+  "agent:map": {
+    description: "gera mapa normativo via indexador",
+    run: () => COMMANDS["agent:index"].run(),
+    status: "available",
+  },
+  "agent:docs": {
+    description: "lista documentacao normativa disponivel",
+    run: docs,
+    status: "available",
+  },
+  "agent:rcf": {
+    description: "valida presenca e referencia do RCF",
+    run: rcf,
+    status: "available",
+  },
+  "agent:package": {
+    description: "alias seguro de agent:dist",
+    run: () => COMMANDS["agent:dist"].run(),
+    status: "available",
+  },
+  "agent:test": {
+    description: "alias seguro de agent:verify",
+    run: () => COMMANDS["agent:verify"].run(),
+    status: "available",
+  },
+  "agent:lint": {
+    description: "checagem estatica local dos scripts",
+    run: lint,
+    status: "available",
+  },
+  "agent:typecheck": {
+    description: "checagem sintatica JavaScript local",
+    run: lint,
+    status: "available",
+  },
+  "agent:security": {
+    description: "audita referencias sensiveis conhecidas",
+    run: security,
+    status: "available",
+  },
+  "agent:analyze": {
+    description: "executa verificacao local completa",
+    run: () => COMMANDS["agent:verify"].run(),
+    status: "available",
+  },
+  "agent:deps": {
+    description: "resume dependencias declaradas",
+    run: deps,
+    status: "available",
+  },
+  "agent:licenses": {
+    description: "resume licenca declarada",
+    run: licenses,
+    status: "available",
+  },
+  "agent:git-branch": {
+    description: "lista branches locais",
+    run: () => runGitReadOnly(["branch", "--list"]),
+    status: "available",
+  },
+  "agent:git-tag": {
+    description: "lista tags locais",
+    run: () => runGitReadOnly(["tag", "--list"]),
+    status: "available",
+  },
+  "agent:git-show": {
+    description: "exibe commit local filtrado",
+    run: (args) => runGitReadOnly(["show", "--stat", "--oneline", args[0] || "HEAD"]),
+    status: "available",
+  },
+  "agent:git-history": {
+    description: "exibe historico local compacto",
+    run: () => runGitReadOnly(["log", "--oneline", "-50"]),
+    status: "available",
+  },
+  "agent:git-blame": {
+    description: "exibe autoria local filtrada de arquivo",
+    run: (args) => runGitReadOnly(["blame", "--", args[0] || "README.md"]),
+    status: "available",
+  },
+  "agent:git-last-release": {
+    description: "localiza ultimo commit release local",
+    run: gitLastRelease,
+    status: "available",
+  },
+  "agent:git-release-notes": {
+    description: "gera notas locais desde ultimo release",
+    run: gitReleaseNotes,
+    status: "available",
+  },
+  "agent:git-changelog": {
+    description: "gera changelog local compacto",
+    run: () => runGitReadOnly(["log", "--oneline", "-100"]),
+    status: "available",
+  },
+});
+
 const DEGRADED_COMMANDS = new Set([
   "agent:pwd",
   "agent:ls",
@@ -216,6 +334,117 @@ function validateDist() {
   }
 }
 
+function setup() {
+  const required = ["package.json", "README.md", "RCF.md", "agents.md", path.join(".agents", "continue.ia")];
+  const missing = required.filter((entry) => !fs.existsSync(path.join(ROOT_DIR, entry)));
+  return ok(missing.length ? "SETUP_DEGRADED" : "SETUP_OK", { missing });
+}
+
+function doctor() {
+  const scripts = readPackageScripts();
+  const commandSummary = summarizeCommands(scripts);
+  const requiredFiles = ["README.md", "RCF.md", "agents.md", "package.json", "index.json", path.join(".agents", "continue.ia")];
+  const missing = requiredFiles.filter((entry) => !fs.existsSync(path.join(ROOT_DIR, entry)));
+  const git = runProcess("git", ["status", "--short"], { optional: true });
+  return ok(missing.length ? "DOCTOR_DEGRADED" : "DOCTOR_OK", {
+    commands: commandSummary,
+    dirty: Boolean((git.stdout || "").trim()),
+    missing,
+  });
+}
+
+function context() {
+  const index = buildIndex();
+  const log = runProcess("git", ["log", "--oneline", "-5"], { optional: true }).stdout.trim().split(/\r?\n/u).filter(Boolean);
+  return ok("CONTEXT_OK", {
+    branch: runProcess("git", ["branch", "--show-current"], { optional: true }).stdout.trim(),
+    latestCommits: log,
+    normativeFiles: index.files,
+  });
+}
+
+function workspace() {
+  return ok("WORKSPACE_OK", {
+    files: runProcess("git", ["ls-files"], { optional: true }).stdout.trim().split(/\r?\n/u).filter(Boolean).slice(0, 200),
+    status: runProcess("git", ["status", "--short"], { optional: true }).stdout.trim().split(/\r?\n/u).filter(Boolean),
+  });
+}
+
+function docs() {
+  const docsFiles = ["README.md", "RCF.md", "agents.md", "handoff.md"].filter((entry) => fs.existsSync(path.join(ROOT_DIR, entry)));
+  return ok("DOCS_OK", { files: docsFiles });
+}
+
+function rcf() {
+  const rcfPath = path.join(ROOT_DIR, "RCF.md");
+  assertFile(rcfPath, "RCF.md ausente.");
+  const content = fs.readFileSync(rcfPath, "utf8");
+  return ok(content.includes("## 9. Indexador") && content.includes("## 10. Dist") ? "RCF_OK" : "RCF_DEGRADED", {
+    path: "RCF.md",
+    bytes: Buffer.byteLength(content),
+  });
+}
+
+function lint() {
+  const scripts = listFiles(path.join(ROOT_DIR, "scripts")).filter((filePath) => path.extname(filePath) === ".js");
+  for (const script of scripts) {
+    runProcess(process.execPath, ["--check", script]);
+  }
+  return ok("LINT_OK", { scripts: scripts.length });
+}
+
+function security() {
+  const findings = [];
+  for (const filePath of listFiles(ROOT_DIR).filter((entry) => !toPosix(path.relative(ROOT_DIR, entry)).startsWith(".git/"))) {
+    if (![".js", ".json", ".md"].includes(path.extname(filePath).toLocaleLowerCase("en-US"))) {
+      continue;
+    }
+    const relative = toPosix(path.relative(ROOT_DIR, filePath));
+    const content = fs.readFileSync(filePath, "utf8");
+    if (ALIEN_SCRIPT_TERMS.some((term) => content.toLocaleLowerCase("en-US").includes(term.toLocaleLowerCase("en-US")))) {
+      findings.push(relative);
+    }
+  }
+  return ok(findings.length ? "SECURITY_DEGRADED" : "SECURITY_OK", { findings });
+}
+
+function deps() {
+  const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, "utf8"));
+  return ok("DEPS_OK", {
+    dependencies: Object.keys(pkg.dependencies || {}).length,
+    devDependencies: Object.keys(pkg.devDependencies || {}).length,
+    optionalDependencies: Object.keys(pkg.optionalDependencies || {}).length,
+  });
+}
+
+function licenses() {
+  const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, "utf8"));
+  return ok("LICENSES_OK", { license: pkg.license || "" });
+}
+
+function gitLastRelease() {
+  const result = runProcess("git", ["log", "--grep=^release:", "--format=%H %s", "-1"], { optional: true });
+  return ok(result.stdout.trim() ? "GIT_LAST_RELEASE_OK" : "GIT_LAST_RELEASE_EMPTY", {
+    commit: result.stdout.trim(),
+  });
+}
+
+function gitReleaseNotes() {
+  const last = runProcess("git", ["log", "--grep=^release:", "--format=%H", "-1"], { optional: true }).stdout.trim();
+  const range = last ? `${last}..HEAD` : "HEAD";
+  const log = runProcess("git", ["log", "--oneline", range], { optional: true }).stdout.trim().split(/\r?\n/u).filter(Boolean);
+  return ok("GIT_RELEASE_NOTES_OK", { commits: log });
+}
+
+function runGitReadOnly(args) {
+  const result = runProcess("git", args, { optional: true });
+  process.stdout.write(limitOutput(result.stdout || ""));
+  if (result.stderr) {
+    process.stderr.write(limitOutput(result.stderr));
+  }
+  return result.status || 0;
+}
+
 function printStatus() {
   const scripts = readPackageScripts();
   const commands = CANONICAL_COMMANDS.map((command) => ({
@@ -232,6 +461,14 @@ function printStatus() {
   };
   console.log(JSON.stringify(summary));
   return 0;
+}
+
+function summarizeCommands(scripts) {
+  return CANONICAL_COMMANDS.reduce((acc, command) => {
+    const status = commandStatus(command, scripts);
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {});
 }
 
 function commandStatus(command, scripts) {
