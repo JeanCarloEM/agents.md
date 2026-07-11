@@ -16,6 +16,7 @@
     "test": "npm run agent:test",
     "agents:update": "node scripts/.agents/update-agents.js",
     "agent:agents": "node scripts/.agents/update-agents.js",
+    "agent:filter": "node scripts/.agents/to-ia.js --command agent:filter",
     "agent:build": "node scripts/.agents/repo-tools.js agent:build",
     "agent:clean": "node scripts/.agents/repo-tools.js agent:clean",
     "agent:verify": "node scripts/.agents/repo-tools.js agent:verify",

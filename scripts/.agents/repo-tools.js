@@ -11,6 +11,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { createZipFromDirectory } = require("../lib/archive");
+const { filterOutput } = require("./to-ia");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -34,6 +35,11 @@ const ALIEN_SCRIPT_TERMS = [
 ];
 
 const COMMANDS = {
+  "agent:filter": {
+    description: "filtra saida textual pela interface to-ia",
+    run: () => 0,
+    status: "available",
+  },
   "agent:index": {
     description: "gera index.json normativo a partir de src/",
     run: () => {
@@ -252,6 +258,7 @@ const DEGRADED_COMMANDS = new Set([
 ]);
 
 const CANONICAL_COMMANDS = [
+  "agent:filter",
   "agent:setup", "agent:doctor", "agent:repair", "agent:clean", "agent:status", "agent:context", "agent:workspace",
   "agent:pwd", "agent:ls", "agent:tree", "agent:find", "agent:search", "agent:grep", "agent:head", "agent:tail", "agent:view", "agent:stat", "agent:size", "agent:hash", "agent:diff-file", "agent:logs", "agent:process", "agent:kill", "agent:ports", "agent:compress", "agent:extract",
   "agent:git-status", "agent:git-fetch", "agent:git-pull", "agent:git-push", "agent:git-sync", "agent:git-add", "agent:git-commit", "agent:git-branch", "agent:git-switch", "agent:git-tag", "agent:git-log", "agent:git-show", "agent:git-history", "agent:git-diff", "agent:git-blame", "agent:git-reset", "agent:git-restore", "agent:git-clean", "agent:git-stash", "agent:git-prune", "agent:git-gc", "agent:git-last-release", "agent:git-release-notes", "agent:git-changelog",
@@ -767,15 +774,23 @@ function toPosix(value) {
 }
 
 if (require.main === module) {
+  const stdout = process.stdout.write.bind(process.stdout);
+  const stderr = process.stderr.write.bind(process.stderr);
+  const out = [];
+  const err = [];
+  process.stdout.write = (chunk) => { out.push(String(chunk)); return true; };
+  process.stderr.write = (chunk) => { err.push(String(chunk)); return true; };
+  let code = 0;
   try {
-    const code = main();
-    if (Number.isInteger(code)) {
-      process.exitCode = code;
-    }
+    code = main();
   } catch (err) {
     console.error(err.message);
-    process.exitCode = 1;
+    code = 1;
   }
+  process.stdout.write = stdout;
+  process.stderr.write = stderr;
+  stdout(filterOutput({ command: process.argv[2] || "agent:status", exit: Number.isInteger(code) ? code : 1, stderr: err.join(""), stdout: out.join("") }));
+  process.exitCode = Number.isInteger(code) ? code : 1;
 }
 
 module.exports = {
