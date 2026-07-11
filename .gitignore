@@ -1,17 +1,13 @@
-node_modules
-.*/
-!.vscode
-src/__generated__
+node_modules/
+/.*/
+!/.vscode
 *.psd
 *.ai
 *.zip
 *.7z
 tmp/
-# Arquivos de saída do Jekyll (para cache em build no github Actions)
-# O GitHub Pages gera a pasta _site automaticamente
-!_site`
 
 0. Autoriza .md em ./.agents/
-!/src/.agents
-!/src/.agents/*
-!/src/.agents/**
+/src/.agents/
+!/src/.agents/*.md
+!/src/.agents/**/*.md
