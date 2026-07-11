@@ -135,4 +135,21 @@ decisoes=Release e publish possuem dominios incompatíveis: qualquer compatibili
 invariantes=release deve ser deterministico, auditavel e hookeavel; publish somente deve existir onde o cenario de Conteudo se aplicar; especializacao local nao deve ser sobrescrita pela atualizacao.
 verificacoes=node --check scripts/.agents/repo-tools.js e release-workflow.js; release.beta rejeitado; agent:release:trigger sem versao retornou PARAMETRO_NORMATIVO_AUSENTE:version e processo 4; agent:release 0.0.0-beta seguido de agent:verify preservou ZIP e metadado completo.
 pendencias=nenhuma local; publicacao remota depende de push e credenciais.
+
+FT-009|nome=Ordem e resiliencia do workflow de release|escopo=Tecnico|prioridade=alta|status=concluido|inicio=20260711.235000|atualizacao=20260712.000500|conclusao=20260712.000500
+objetivo=Alinhar a ordem do workflow ao cenario Release e aplicar retry controlado nas operacoes de rede.
+1/3 Auditoria e plano [concluido]
+  1/2 Comparar fluxo do cenario, RCF e GitHub Actions [concluido]
+  2/2 Delimitar ordem e operacoes de rede afetadas [concluido]
+2/3 Implementacao do workflow [concluido]
+  1/3 Publicar tag e release antes do hook published [concluido]
+  2/3 Finalizar commit release apos hook published [concluido]
+  3/3 Aplicar retry de rede limitado e deterministico [concluido]
+3/3 Validacao e entrega [concluido]
+  1/3 Validar ordem, sintaxe e repeticao de rede [concluido]
+  2/3 Gerar handoff e atualizar memoria [concluido]
+  3/3 Commitar etapas funcionais [concluido]
+decisoes=O commit release permanece posterior ao asset publicado para obedecer a ordem do cenario; o marcador continua removendo o gatilho e registrando o estado publicado.
+verificacoes=WORKFLOW_RELEASE_ORDER_OK; WORKFLOW_RESILIENCE_OK; node --check release-workflow.js; npm run agent:verify OK.
+pendencias=nenhuma local; execucao do workflow remoto depende de push e credenciais.
 falhas=agent:verify reconstroi release.json sem metadado de release; detector aceita extensao de gatilho sem autorizacao explicita do RCF; agent:release:trigger pode sobrescrever sinalizador existente.
