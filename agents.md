@@ -34,7 +34,7 @@ Os domínios cooperam, mas não se incorporam, substituem ou sobrepõem; a autor
 
 **0.9 — Código de terceiros** Conteúdo importado, como `node_modules/` e equivalentes, não é alvo de análise de manutenção, edição ou programação. Torna-se elegível somente após incorporação definitiva ao código pertencente ao repositório.
 
-**0.10 — Localização normativa** `AGENTS.md`, `agents.local.md`, `continue.ia`/`continue.dev` e equivalentes PODEM residir na raiz ou, preferencialmente, em `./.agents/`; essa estrutura pertence ao domínio de IA de [0.4] e PODE ser normatizada conforme [0.5].
+**0.10 — Localização normativa** `agents.local.md`, `continue.ia`/`continue.dev` e equivalentes PODEM residir na raiz ou, preferencialmente, em `./.agents/`; essa estrutura pertence ao domínio de IA de [0.4] e PODE ser normatizada conforme [0.5].
 
 **0.11 — Regressão de compartimentação** DEVE ser considerada inaplicável, por regressão arquitetural, alteração que remova, enfraqueça, transfira ou converta:
 
