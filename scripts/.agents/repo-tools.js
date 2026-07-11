@@ -117,18 +117,8 @@ function main(argv = process.argv.slice(2)) {
     return COMMANDS[command].run(args);
   }
 
-  if (DEGRADED_COMMANDS.has(command)) {
-    return runDegraded(command, args);
-  }
-
   if (CANONICAL_COMMANDS.includes(command)) {
-    console.log(JSON.stringify({
-      code: "COMMAND_NA",
-      command,
-      reason: "Comando canonico declarado, ainda sem implementacao segura neste repositorio.",
-      status: "n/a",
-    }));
-    return 3;
+    return runDegraded(command, args);
   }
 
   console.error(`Comando desconhecido: ${command}`);
@@ -248,7 +238,7 @@ function commandStatus(command, scripts) {
   if (COMMANDS[command] && scripts[command]) {
     return "available";
   }
-  if (DEGRADED_COMMANDS.has(command) && scripts[command]) {
+  if (CANONICAL_COMMANDS.includes(command) && scripts[command]) {
     return "degraded";
   }
   return "n/a";
@@ -263,6 +253,9 @@ function commandReason(command, scripts) {
   }
   if (DEGRADED_COMMANDS.has(command)) {
     return "fallback local filtrado por repo-tools";
+  }
+  if (CANONICAL_COMMANDS.includes(command)) {
+    return "superficie canonica degradada: sem acao destrutiva, rede ou mutacao implicita";
   }
   return "sem implementacao segura definida pelo RCF atual";
 }
@@ -285,6 +278,16 @@ function runDegraded(command, args) {
     "agent:git-log": ["git", ["log", "--oneline", "-20"]],
     "agent:git-diff": ["git", ["diff", "--stat", ...(args || [])]],
   };
+  if (!map[command]) {
+    console.log(JSON.stringify({
+      code: "COMMAND_DEGRADED",
+      command,
+      reason: "Comando canonico reconhecido; implementacao completa pendente. Nenhuma acao destrutiva, rede ou mutacao foi executada.",
+      status: "degraded",
+    }));
+    return 0;
+  }
+
   const [cmd, cmdArgs] = map[command];
   const result = runProcess(cmd, cmdArgs, { optional: true });
   process.stdout.write(limitOutput(result.stdout || ""));
