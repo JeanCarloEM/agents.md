@@ -12,6 +12,7 @@ const path = require("path");
 
 const { createZipFromDirectory } = require("../lib/archive");
 const { filterOutput } = require("./to-ia");
+const { runReleaseHook } = require("./release-hooks");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -136,18 +137,13 @@ Object.assign(COMMANDS, {
     status: "available",
   },
   "agent:release": {
-    description: "gera release local com release-note.txt e pacote versionado",
+    description: "gera release local rastreavel com release-note.txt e pacote versionado",
     run: releaseLocal,
     status: "available",
   },
-  "agent:publish": {
-    description: "cria gatilho local publish para o workflow de release",
-    run: publishTrigger,
-    status: "available",
-  },
-  "agent:deploy": {
-    description: "alias de agent:publish para acionar publicacao remota",
-    run: publishTrigger,
+  "agent:release:trigger": {
+    description: "cria gatilho local release para o workflow tecnico",
+    run: releaseTrigger,
     status: "available",
   },
   "agent:test": {
@@ -262,7 +258,7 @@ const CANONICAL_COMMANDS = [
   "agent:setup", "agent:doctor", "agent:repair", "agent:clean", "agent:status", "agent:context", "agent:workspace",
   "agent:pwd", "agent:ls", "agent:tree", "agent:find", "agent:search", "agent:grep", "agent:head", "agent:tail", "agent:view", "agent:stat", "agent:size", "agent:hash", "agent:diff-file", "agent:logs", "agent:process", "agent:kill", "agent:ports", "agent:compress", "agent:extract",
   "agent:git-status", "agent:git-fetch", "agent:git-pull", "agent:git-push", "agent:git-sync", "agent:git-add", "agent:git-commit", "agent:git-branch", "agent:git-switch", "agent:git-tag", "agent:git-log", "agent:git-show", "agent:git-history", "agent:git-diff", "agent:git-blame", "agent:git-reset", "agent:git-restore", "agent:git-clean", "agent:git-stash", "agent:git-prune", "agent:git-gc", "agent:git-last-release", "agent:git-release-notes", "agent:git-changelog",
-  "agent:build", "agent:verify", "agent:dist", "agent:package", "agent:release", "agent:publish", "agent:deploy", "agent:rollback",
+  "agent:build", "agent:verify", "agent:dist", "agent:package", "agent:release", "agent:release:trigger", "agent:rollback",
   "agent:test", "agent:lint", "agent:format", "agent:typecheck", "agent:benchmark", "agent:security", "agent:analyze",
   "agent:deps", "agent:update-deps", "agent:licenses",
   "agent:index", "agent:map", "agent:handoff", "agent:docs", "agent:rcf", "agent:agents",
@@ -309,31 +305,38 @@ function buildDist(options = {}) {
   const releaseVersion = normalizeReleaseVersion(options.version || "");
   const releaseNotes = typeof options.releaseNotes === "string" ? options.releaseNotes.trim() : readExistingReleaseNotes();
   const index = buildIndex();
+  const archiveName = resolveArchiveName(releaseVersion);
+  const files = buildDistributionFiles(index);
   cleanDirectory(DIST_DIR);
   fs.mkdirSync(DIST_DIR, { recursive: true });
 
-  for (const file of index.files) {
-    const sourcePath = path.join(ROOT_DIR, file.path);
-    const releasePath = releaseRelativePath(file.path);
-    const targetPath = path.join(DIST_DIR, releasePath);
+  for (const file of files) {
+    const targetPath = path.join(DIST_DIR, file.path);
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-    fs.copyFileSync(sourcePath, targetPath);
+    fs.copyFileSync(path.join(ROOT_DIR, file.sourcePath), targetPath);
   }
 
   const releaseIndex = {
-    files: index.files.map((file) => ({
-      name: file.name === "agents.md" ? "AGENTS.md" : file.name,
-      path: releaseRelativePath(file.path),
-    })),
+    files: files.map(({ name, path: releasePath }) => ({ name, path: releasePath })),
     root: ".",
     schema: 1,
   };
-  writeJsonMinified(RELEASE_PATH, releaseIndex);
   if (releaseNotes) {
     fs.writeFileSync(RELEASE_NOTE_PATH, `${releaseNotes}\n`, "utf8");
   }
+  if (options.releaseMetadata) {
+    releaseIndex.release = {
+      asset: toPosix(path.join("dist", archiveName)),
+      baseTag: options.releaseMetadata.baseTag || "",
+      commit: options.releaseMetadata.commit,
+      inference: options.releaseMetadata.inference,
+      notesSha256: crypto.createHash("sha256").update(releaseNotes, "utf8").digest("hex"),
+      tag: `v${releaseVersion}`,
+      version: releaseVersion,
+    };
+  }
+  writeJsonMinified(RELEASE_PATH, releaseIndex);
 
-  const archiveName = resolveArchiveName(releaseVersion);
   const archivePath = path.join(DIST_DIR, archiveName);
   createZipFromDirectory(DIST_DIR, archivePath, {
     exclude: [/^agents-v.+\.zip$/u],
@@ -346,6 +349,22 @@ function buildDist(options = {}) {
     releaseNote: releaseNotes ? toPosix(path.relative(ROOT_DIR, RELEASE_NOTE_PATH)) : "",
     version: releaseVersion || readPackageVersion(),
   };
+}
+
+function buildDistributionFiles(index) {
+  const normative = index.files.map((file) => ({
+    name: file.name === "agents.md" ? "AGENTS.md" : file.name,
+    path: releaseRelativePath(file.path),
+    sourcePath: file.path,
+  }));
+  const scripts = listFiles(path.join(ROOT_DIR, "scripts"))
+    .filter((filePath) => path.extname(filePath).toLocaleLowerCase("en-US") === ".js")
+    .map((filePath) => ({
+      name: path.basename(filePath),
+      path: toPosix(path.relative(ROOT_DIR, filePath)),
+      sourcePath: toPosix(path.relative(ROOT_DIR, filePath)),
+    }));
+  return [...normative, ...scripts].sort((a, b) => a.path.localeCompare(b.path, "en"));
 }
 
 function readExistingReleaseNotes() {
@@ -389,7 +408,11 @@ function validateIndex(index) {
 function validateDist() {
   assertFile(path.join(DIST_DIR, "AGENTS.md"), "dist/AGENTS.md ausente.");
   assertFile(path.join(DIST_DIR, ".agents", ".autoupdate.md"), "dist/.agents/.autoupdate.md ausente.");
+  assertFile(path.join(DIST_DIR, ".agents", "microconceitos.md"), "dist/.agents/microconceitos.md ausente.");
+  assertFile(path.join(DIST_DIR, ".agents", "publish.md"), "dist/.agents/publish.md ausente.");
+  assertFile(path.join(DIST_DIR, ".agents", "release.md"), "dist/.agents/release.md ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "webPageLike.md"), "dist/.agents/webPageLike.md ausente.");
+  assertFile(path.join(DIST_DIR, "scripts", ".agents", "release-hooks.js"), "dist/scripts/.agents/release-hooks.js ausente.");
   assertFile(RELEASE_PATH, "dist/release.json ausente.");
   const release = JSON.parse(fs.readFileSync(RELEASE_PATH, "utf8"));
   if (release.root !== "." || !Array.isArray(release.files)) {
@@ -529,19 +552,22 @@ function gitReleaseNotes() {
 }
 
 function releaseLocal(args = []) {
-  const version = normalizeReleaseVersion(args[0] || readPackageVersion());
-  const notes = buildReleaseNotes(version);
-  const result = buildDist({ releaseNotes: notes, version });
-  return ok("RELEASE_OK", result);
+  const release = resolveRelease(args[0] || "");
+  const prepare = runReleaseHook("prepare", release);
+  const notes = buildReleaseNotes(release.version);
+  const result = buildDist({ releaseMetadata: release, releaseNotes: notes, version: release.version });
+  const verify = runReleaseHook("verify", { ...release, ...result });
+  return ok("RELEASE_OK", { ...result, inference: release.inference, prepare, verify });
 }
 
-function publishTrigger(args = []) {
-  const version = normalizeReleaseVersion(args[0] || readPackageVersion());
-  const targetPath = path.join(ROOT_DIR, "publish");
-  fs.writeFileSync(targetPath, `${version}\n`, "utf8");
-  return ok("PUBLISH_TRIGGER_OK", {
-    file: "publish",
-    version,
+function releaseTrigger(args = []) {
+  const release = resolveRelease(args[0] || "");
+  const targetPath = path.join(ROOT_DIR, "release");
+  fs.writeFileSync(targetPath, `${release.version}\n`, "utf8");
+  return ok("RELEASE_TRIGGER_OK", {
+    file: "release",
+    inference: release.inference,
+    version: release.version,
   });
 }
 
@@ -676,6 +702,88 @@ function readPackageVersion() {
   return normalizeReleaseVersion(pkg.version || "0.0.0-beta");
 }
 
+function resolveRelease(value) {
+  const raw = String(value || "").trim();
+  const commit = runProcess("git", ["rev-parse", "HEAD"]).stdout.trim();
+  const baseTag = findLatestReleaseTag();
+  const explicit = Boolean(raw);
+  let version;
+  let inference;
+
+  if (explicit) {
+    version = normalizeReleaseVersion(raw);
+    inference = "explicit";
+  } else if (baseTag) {
+    version = inferVersionFromCommits(baseTag);
+    inference = `conventional:${baseTag}`;
+  } else {
+    const lastMarker = runProcess("git", ["log", "--grep=^release:", "--format=%H", "-1"], { optional: true }).stdout.trim();
+    if (lastMarker) {
+      throw new Error("VERSAO_NAO_INFERIVEL: marcador release sem tag correspondente.");
+    }
+    version = readPackageVersion();
+    inference = "manifesto-inicial";
+  }
+
+  assertReleaseTagAvailable(version);
+  return { baseTag, commit, explicit, inference, version };
+}
+
+function findLatestReleaseTag() {
+  const tags = runProcess("git", ["tag", "--merged", "HEAD", "--sort=-version:refname"], { optional: true }).stdout
+    .trim()
+    .split(/\r?\n/u)
+    .filter(Boolean);
+  return tags.find((tag) => /^v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(tag)) || "";
+}
+
+function assertReleaseTagAvailable(version) {
+  const tag = `v${version}`;
+  const exists = runProcess("git", ["rev-parse", "--verify", `refs/tags/${tag}`], { optional: true });
+  if (exists.status === 0) {
+    throw new Error(`VERSAO_JA_PUBLICADA:${tag}`);
+  }
+}
+
+function inferVersionFromCommits(baseTag) {
+  const base = normalizeReleaseVersion(baseTag.replace(/^v/u, ""));
+  if (base.includes("-")) {
+    throw new Error("VERSAO_NAO_INFERIVEL: tag base de pre-release exige versao explicita.");
+  }
+  const records = runProcess("git", ["log", "--format=%s%x1f%b%x1e", `${baseTag}..HEAD`]).stdout
+    .split("\x1e")
+    .map((record) => record.trim())
+    .filter(Boolean);
+  if (records.length === 0) {
+    throw new Error("VERSAO_NAO_INFERIVEL: sem commits apos a ultima tag.");
+  }
+
+  let level = "";
+  for (const record of records) {
+    const [subject, body = ""] = record.split("\x1f");
+    const match = subject.match(/^(feat|fix|perf)(?:\([^)]*\))?(!)?:\s/u);
+    if (!match) {
+      throw new Error(`VERSAO_NAO_INFERIVEL: commit sem convencao semantica: ${subject}`);
+    }
+    if (match[2] || /BREAKING[ -]CHANGE:/iu.test(body)) {
+      level = "major";
+    } else if (level !== "major" && match[1] === "feat") {
+      level = "minor";
+    } else if (!level) {
+      level = "patch";
+    }
+  }
+  return incrementReleaseVersion(base, level);
+}
+
+function incrementReleaseVersion(version, level) {
+  const [major, minor, patch] = normalizeReleaseVersion(version).split("-")[0].split(".").map(Number);
+  if (level === "major") return `${major + 1}.0.0`;
+  if (level === "minor") return `${major}.${minor + 1}.0`;
+  if (level === "patch") return `${major}.${minor}.${patch + 1}`;
+  throw new Error("VERSAO_NAO_INFERIVEL: nivel semantico ausente.");
+}
+
 function normalizeReleaseVersion(value) {
   const raw = String(value || "").trim();
 
@@ -805,6 +913,7 @@ module.exports = {
   buildDist,
   buildIndex,
   main,
+  resolveRelease,
   validateDist,
   verify,
 };
