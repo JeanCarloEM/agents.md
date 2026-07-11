@@ -1,0 +1,117 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Versao do release no formato 0.0.0 ou 0.0.0-beta
+        required: true
+        type: string
+  push:
+    branches:
+      - dev
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  detect-publish:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      file: ${{ steps.detect.outputs.file }}
+      triggered: ${{ steps.detect.outputs.triggered }}
+      version: ${{ steps.detect.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - id: detect
+        shell: bash
+        run: |
+          result="$(node scripts/.agents/release-workflow.js detect '${{ github.event.before }}' '${{ github.sha }}')"
+          printf '%s\n' "$result"
+          printf 'triggered=%s\n' "$(node -e "const data=JSON.parse(process.argv[1]); process.stdout.write(String(Boolean(data.triggered))); " "$result")" >> "$GITHUB_OUTPUT"
+          printf 'version=%s\n' "$(node -e "const data=JSON.parse(process.argv[1]); process.stdout.write(data.version || '');" "$result")" >> "$GITHUB_OUTPUT"
+          printf 'file=%s\n' "$(node -e "const data=JSON.parse(process.argv[1]); process.stdout.write(data.file || '');" "$result")" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs:
+      - detect-publish
+    if: github.event_name == 'workflow_dispatch' || needs.detect-publish.outputs.triggered == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configurar Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Resolver versao e gatilho
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          DETECT_FILE: ${{ needs.detect-publish.outputs.file }}
+          DETECT_VERSION: ${{ needs.detect-publish.outputs.version }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            version="$INPUT_VERSION"
+            publish_file='publish'
+          else
+            version="$DETECT_VERSION"
+            publish_file="$DETECT_FILE"
+          fi
+          printf 'RELEASE_VERSION=%s\n' "$version" >> "$GITHUB_ENV"
+          printf 'PUBLISH_FILE=%s\n' "$publish_file" >> "$GITHUB_ENV"
+
+      - name: Validar tag inexistente
+        shell: bash
+        run: |
+          if git rev-parse --verify "refs/tags/v${RELEASE_VERSION}" >/dev/null 2>&1; then
+            echo "Tag local v${RELEASE_VERSION} ja existe." >&2
+            exit 1
+          fi
+          if git ls-remote --tags origin "refs/tags/v${RELEASE_VERSION}" | grep . >/dev/null 2>&1; then
+            echo "Tag remota v${RELEASE_VERSION} ja existe." >&2
+            exit 1
+          fi
+
+      - name: Gerar release local
+        run: node scripts/.agents/repo-tools.js agent:release "$env:RELEASE_VERSION"
+        shell: pwsh
+
+      - name: Finalizar commit release
+        run: node scripts/.agents/release-workflow.js finalize "$env:RELEASE_VERSION" "$env:PUBLISH_FILE"
+        shell: pwsh
+
+      - name: Publicar commit release
+        run: git push origin "HEAD:${{ github.ref_name }}"
+
+      - name: Criar tag da versao
+        run: git tag "v${RELEASE_VERSION}"
+        shell: bash
+
+      - name: Publicar tag
+        run: git push origin "v${RELEASE_VERSION}"
+        shell: bash
+
+      - name: Publicar release GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "v${RELEASE_VERSION}" "dist/agents-v${RELEASE_VERSION}.zip" "dist/release-note.txt" --title "v${RELEASE_VERSION}" --notes-file "dist/release-note.txt" --latest
+        shell: bash

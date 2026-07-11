@@ -1,9 +1,13 @@
 node_modules/
 /.*/
 !/.vscode
+!/.github/
+!/.github/workflows/
+!/.github/workflows/*.yml
 *.psd
 *.ai
 *.zip
+dist/release-note.txt
 *.7z
 tmp/
 
