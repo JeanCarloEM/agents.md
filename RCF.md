@@ -361,11 +361,13 @@ Cada comando DEVE:
 - ser idempotente quando a finalidade não exigir efeito cumulativo;
 - admitir execução não interativa, contrato explícito e salvaguardas para operações destrutivas.
 
+`agent:filter`/`to-ia` DEVE preceder os demais comandos e concentrar toda saída destinada à IA. A interface DEVE normalizar UTF-8/LF, remover controles, deduplicar linhas consecutivas, classificar e ordenar `fatal`, `error`, `warning`, `change`, `result`, `metric`, `info`, limitar a 50 linhas ou 8192 bytes e persistir excedente íntegro fora do versionamento. Falha do filtro DEVE bloquear a exposição e retornar código `4`.
+
 Sequência recorrente, multicomando ou consumidora de contexto DEVE virar comando único da API. A API DEVE evoluir continuamente para deslocar trabalho mecânico da LLM sem ocultar erro, decisão, valor ou rastreabilidade.
 
 Matriz mínima, quando aplicável ao ecossistema:
 
-- **Workspace:** `agent:setup`, `agent:doctor`, `agent:repair`, `agent:clean`, `agent:status`, `agent:context`, `agent:workspace`.
+- **Workspace:** `agent:filter`, `agent:setup`, `agent:doctor`, `agent:repair`, `agent:clean`, `agent:status`, `agent:context`, `agent:workspace`.
 - **Sistema operacional:** `agent:pwd`, `agent:ls`, `agent:tree`, `agent:find`, `agent:search`, `agent:grep`, `agent:head`, `agent:tail`, `agent:view`, `agent:stat`, `agent:size`, `agent:hash`, `agent:diff-file`, `agent:logs`, `agent:process`, `agent:kill`, `agent:ports`, `agent:compress`, `agent:extract`.
 - **Git:** `agent:git-status`, `agent:git-fetch`, `agent:git-pull`, `agent:git-push`, `agent:git-sync`, `agent:git-add`, `agent:git-commit`, `agent:git-branch`, `agent:git-switch`, `agent:git-tag`, `agent:git-log`, `agent:git-show`, `agent:git-history`, `agent:git-diff`, `agent:git-blame`, `agent:git-reset`, `agent:git-restore`, `agent:git-clean`, `agent:git-stash`, `agent:git-prune`, `agent:git-gc`, `agent:git-last-release`, `agent:git-release-notes`, `agent:git-changelog`.
 - **Build/publicação:** `agent:build`, `agent:verify`, `agent:dist`, `agent:package`, `agent:release`, `agent:publish`, `agent:deploy`, `agent:rollback`.

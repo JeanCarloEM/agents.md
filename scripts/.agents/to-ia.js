@@ -11,6 +11,7 @@ const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const OUTPUT_DIR = path.join(ROOT_DIR, ".agents", "cache", "outputs");
 const MAX_BYTES = 8192;
 const MAX_LINES = 50;
+const LEVEL_ORDER = ["fatal", "error", "warning", "change", "result", "metric", "info", "debug"];
 
 function normalize(value) {
   return String(value || "")
@@ -32,6 +33,13 @@ function levelOf(line) {
 
 function codeOf(level) {
   return `TO_IA_${level.toUpperCase()}`;
+}
+
+function orderRecords(records) {
+  return records
+    .map((record, index) => ({ ...record, index }))
+    .sort((left, right) => LEVEL_ORDER.indexOf(left.level) - LEVEL_ORDER.indexOf(right.level) || left.index - right.index)
+    .map(({ index, ...record }) => record);
 }
 
 function deduplicate(lines) {
@@ -94,7 +102,7 @@ function limit(records, envelope) {
 function filterOutput({ command = "agent:filter", exit = 0, stderr = "", stdout = "" } = {}) {
   const normalized = normalize(`${stdout}${stderr ? `\n${stderr}` : ""}`);
   const allLines = deduplicate(normalized.split("\n").filter(Boolean));
-  const records = allLines.map((message) => ({ code: codeOf(levelOf(message)), level: levelOf(message), message }));
+  const records = orderRecords(allLines.map((message) => ({ code: codeOf(levelOf(message)), level: levelOf(message), message })));
   const visible = records.filter((record) => record.level !== "debug");
   const provisional = {
     v: 1,
@@ -149,6 +157,7 @@ if (require.main === module) {
     const [command, ...commandArgs] = args.run;
     if (!command) {
       process.stdout.write(filterOutput({ ...args, exit: 2, stderr: "PARAMETRO_NORMATIVO_AUSENTE:command" }));
+      process.exitCode = 2;
     } else {
       const result = childProcess.spawnSync(command, commandArgs, { cwd: ROOT_DIR, encoding: "utf8", shell: false });
       process.stdout.write(filterOutput({
@@ -157,8 +166,8 @@ if (require.main === module) {
         stderr: `${result.stderr || ""}${result.error ? `\n${result.error.message}` : ""}`,
         stdout: result.stdout || "",
       }));
+      process.exitCode = Number.isInteger(result.status) ? result.status : 1;
     }
-    process.exitCode = 0;
     return;
   }
   let input = "";

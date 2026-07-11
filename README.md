@@ -9,10 +9,11 @@ Governanca operacional portavel para agentes IA. O target construtivo fica em `s
 - `npm run release -- <versao>`: gera `dist/`, `release-note.txt` e `agents-v<versao>.zip`.
 - `npm run publish -- <versao>`: cria o gatilho transitório `publish` para o workflow de release.
 - `npm run agent:status`: resume capacidades canonicas.
+- `npm run agent:filter -- --run <comando> [args]`: entrega a saída do comando em JSONL compacto e ordenado para IA.
 - `npm run agent:index`: gera `index.json` minificado a partir de `src/`.
 - `npm run agent:dist`: gera `dist/`, `dist/release.json` e pacote `agents-v<versao>.zip`.
 - `npm run agent:verify`: valida scripts, indexador e dist.
-- `npm run agent:agents`: executa atualizacao automatica da governanca operacional.
+- `npm run agent:agents`: executa atualizacao automatica da governanca operacional pela superficie filtrada.
 - `npm run agent:handoff`: gera [handoff.md](handoff.md) a partir de `.agents/continue.ia`.
 
 ## Release
