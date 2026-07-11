@@ -627,37 +627,68 @@ Novos cenários DEVEM ser acrescentados somente a esta tabela, preservando §17.
 
 ### 18.1 Contrato fechado
 
-Todo repositório regido por este arquivo DEVE expor API operacional local, determinística, não interativa e reutilizável pela interface nativa do ecossistema, com os nomes canônicos de §18.2. Objetivos: reduzir contexto, tokens, processamento por LLM, tempo, comandos, erro e acoplamento.
+Todo repositório regido por este arquivo DEVE expor API operacional local, determinística, não interativa e reutilizável pela interface nativa do ecossistema, com os nomes canônicos de §18.2, para reduzir contexto, tokens, processamento por LLM, tempo, comandos, erro e acoplamento.
 
-A matriz de §18.2 é o catálogo mínimo obrigatório. Cada comando presume-se aplicável e DEVE existir exatamente com o nome indicado. A dispensa somente PODE ocorrer por impossibilidade ou irrelevância objetiva, declarada pelo RCF, cenário ou `agents.local.md`; silêncio, ausência de implementação ou decisão da IA NÃO constituem dispensa. `agent:status` DEVE enumerar todos os comandos de §18.2 como `available`, `degraded` ou `n/a`, informando invocação, motivo e autoridade da exceção. Alias PODE coexistir, mas NÃO substitui o nome canônico.
+A matriz de §18.2 é o catálogo mínimo obrigatório. Cada comando presume-se aplicável e DEVE existir exatamente como nomeado. Dispensa somente PODE decorrer de impossibilidade ou irrelevância objetiva declarada pelo RCF, cenário ou `agents.local.md`; silêncio, ausência, custo, conveniência ou decisão da IA NÃO constituem dispensa. Alias PODE coexistir, mas NÃO substitui o nome canônico.
 
-Havendo comando `available`/`degraded` equivalente, a IA DEVE usá-lo antes de compor comandos do sistema, Git ou ecossistema. Desvio somente PODE ocorrer por inaplicabilidade declarada, indisponibilidade, insuficiência contratual ou falha comprovada; causa e fallback DEVEM ser registrados, e recorrência DEVE gerar correção/ampliação da API.
+`agent:status` DEVE classificar cada comando como:
 
-Cada comando DEVE possuir contrato explícito, versionado e consultável, contendo: finalidade; sintaxe; entradas e tipos; obrigatoriedade; valores aceitos; defaults; limites; timeouts; retries/backoff; lotes, paginação e concorrência; pré/pós-condições; dependências; efeitos colaterais; idempotência; classificação destrutiva e confirmação; schema de saída; truncamento/persistência do resultado integral; códigos de retorno; falhas e fallback. Nenhum desses elementos PODE depender de inferência. Valor ausente, contraditório ou aberto torna o comando não conforme; a IA NÃO DEVE inventá-lo, devendo aplicar §§12.5 e 17.
+- `available`: contrato integralmente implementado e validado;
+- `degraded`: executável e seguro, com perda somente de capacidade opcional explicitamente identificada;
+- `n/a`: dispensado por autoridade normativa identificada;
+- `noncompliant`: ausente, inseguro, sem contrato obrigatório, sem filtro ou divergente desta seção.
 
-Os comandos DEVEM:
+A IA DEVE usar comando `available`; PODE usar `degraded` somente se a capacidade ausente for irrelevante à operação atual; NÃO DEVE usar `noncompliant`. Desvio para comando manual somente PODE ocorrer por `n/a`, indisponibilidade superveniente ou insuficiência contratual comprovada; causa, comando, saída filtrada e fallback DEVEM ser registrados, e a API DEVE ser corrigida antes da terceira repetição equivalente.
 
-- encapsular operações recorrentes, determinísticas ou mecânicas e, conforme contrato, filtros, validações, retries, tratamento de erro, paralelização, paginação, sumarização e consolidação;
-- produzir saída compacta, estável e acionável, omitindo progresso, transferências, arquivos inalterados, repetição e logs sem valor;
-- retornar somente resultado, diagnóstico, métricas, resumo e erros relevantes; ao exceder limite declarado, persistir a saída integral e retornar localização, tamanho, hash e resumo;
-- usar códigos de retorno automatizáveis e preservar salvaguardas, especialmente §§0 e 9–13;
-- ser idempotentes quando o contrato não exigir efeito cumulativo; operação destrutiva NÃO DEVE ampliar escopo nem suprimir confirmação obrigatória.
+Cada comando DEVE possuir contrato explícito, versionado e consultável com: finalidade; sintaxe; entradas/tipos; obrigatoriedade; enumerações; defaults; limites; timeout; retries/backoff; lotes; paginação; concorrência; pré/pós-condições; dependências; efeitos; idempotência; destrutividade/confirmação; schema e filtro de saída; persistência/truncamento; códigos de retorno; falhas; fallback. Elemento ausente, contraditório ou aberto torna o comando `noncompliant`; a IA NÃO DEVE inferi-lo, completá-lo ou executar a operação, devendo retornar `PARAMETRO_NORMATIVO_AUSENTE:<nome>` e código `4`.
 
-Sequência recorrente, mecanicamente componível ou custosa em comandos/contexto DEVE ser consolidada. A API DEVE evoluir continuamente para deslocar trabalho mecânico da LLM sem ocultar erro, decisão, valor ou rastreabilidade.
+#### 18.1.1 Filtro universal e orçamento de saída
+
+`agent:filter` é infraestrutura obrigatória e DEVE ser criado antes dos demais comandos; `agent:status` DEVE falhar se ele estiver ausente, desativável ou contornável. Toda saída destinada à IA — `stdout`, `stderr`, logs, subprocessos, Git, sistema, ecossistema, API ou fallback manual — DEVE atravessá-lo antes da leitura. A IA NÃO DEVE consumir saída bruta nem usar opções equivalentes a `--all`, `--raw`, `--no-filter` ou saída ilimitada.
+
+O filtro DEVE ser único, reutilizado por composição e inteiramente determinístico; NÃO DEVE usar LLM, inferência semântica ou heurística não declarada. Cada comando DEVE emitir registros estruturados; o filtro apenas normaliza, classifica, deduplica, ordena, limita e referencia o conteúdo integral.
+
+Envelope textual obrigatório, em JSON Lines UTF-8 sem linhas vazias:
+
+1. linha 1: `{v,command,status,exit,totalLines,totalBytes,shown,truncated,artifact,sha256}`;
+2. linhas 2–50: registros `{level,code,message}` e, quando aplicável, `{path,line,value}`;
+3. níveis, nesta precedência: `fatal`, `error`, `warning`, `change`, `result`, `metric`, `info`; preservar ordem original dentro do mesmo nível; `debug` DEVE ser persistido, nunca exibido à IA.
+
+Após normalizar quebras para `LF`, remover ANSI/caracteres de controle e deduplicar linhas idênticas consecutivas, a saída exposta à IA DEVE respeitar simultaneamente **máximo de 50 linhas** e **8.192 bytes UTF-8**; prevalece o primeiro limite atingido. Linha individual excedente DEVE ser truncada no limite remanescente, com conteúdo integral persistido. `agent:head`, `agent:tail`, `agent:view`, `agent:logs`, buscas, diffs e históricos DEVEM usar página padrão e máxima de **50 linhas**, uma página por invocação; paginação adicional somente PODE ocorrer quando a página anterior não resolver a tarefa.
+
+Saída integral excedente DEVE ser gravada, sem versionamento, em `./.agents/cache/outputs/`, com nome `<YYYYMMDD.HHMM.SS>-<comando>-<sha256-12>.log`; o envelope DEVE informar path, linhas, bytes e SHA-256. O artefato DEVE permanecer até a conclusão da tarefa; se referenciado por falha, decisão ou `continue`, DEVE acompanhar a retenção da FT (§6.1); caso contrário, `agent:clean` DEVE removê-lo após a tarefa.
+
+Falha do filtro DEVE impedir exposição da saída, retornar código `4`, persistir o bruto e emitir somente envelope mínimo `FILTER_FAILURE`; depuração DEVE ocorrer por `agent:view` filtrado/paginado. `agent:verify` DEVE comprovar que todos os comandos e fallbacks obedecem a este fluxo.
+
+#### 18.1.2 Defaults operacionais globais
+
+Salvo valor mais específico do RCF, cenário, `agents.local.md` ou contrato do comando, aplicar:
+
+- timeout: **30 s** para leitura/local; **120 s** para rede; **900 s** para build, testes, análise, segurança, benchmark, distribuição, pacote, release, publicação, deploy ou rollback;
+- retries: **2** somente para falha transitória em operação idempotente, com backoff de **1 s** e **3 s**; **0** para mutação, operação destrutiva ou não idempotente, salvo autorização contratual explícita;
+- concorrência: **1** para mutações; até **4** para leituras independentes declaradas paralelizáveis; na ausência dessa declaração, **1**;
+- códigos: `0` sucesso; `1` falha de execução; `2` entrada inválida; `3` indisponível/degradado; `4` não conformidade, parâmetro normativo ausente ou falha de filtro; `130` interrupção;
+- entrada textual: UTF-8; paths relativos ao repositório; ordenação estável; locale neutro; data/hora `YYYYMMDD.HHMM.SS`.
+
+Override DEVE declarar valor, escopo e autoridade; expressão aberta NÃO constitui override. Falta de valor não coberto por estes defaults DEVE bloquear a execução conforme §18.1.
+
+Os comandos DEVEM encapsular operações recorrentes, determinísticas ou mecânicas, inclusive filtros, validações, retries, erro, paralelização, paginação, sumarização e consolidação previstos no contrato; retornar somente registros acionáveis; usar códigos automatizáveis; preservar §§0 e 9–13; e ser idempotentes salvo efeito cumulativo declarado.
+
+Uma sequência DEVE ser consolidada em comando único antes da próxima execução quando ocorrer qualquer condição: já foi executada **2 vezes**; exige **3 ou mais comandos**; produz ou previsivelmente produzirá mais de **50 linhas** brutas; ou repete filtragem, paginação, sumarização ou validação. A API DEVE evoluir continuamente para deslocar trabalho mecânico da LLM sem ocultar erro, decisão, valor ou rastreabilidade.
 
 ### 18.2 Matriz mínima obrigatória
 
-Todos as implementações de comandos com finalide única de ser usada pela IA, ou que tenham baixo uso contextual para o desenvolvedor, devem localizar-se de forma aninhada e heirarquia em `./scripts/.agents/`. Caso, opte-se por biblioteca, a localização dela uará será o padrão definido pelo repositório.
+Entrypoints destinados exclusivamente ou predominantemente à IA DEVEM residir hierarquicamente em `./scripts/.agents/`; bibliotecas compartilhadas PODEM seguir o padrão do repositório, mas o entrypoint e o filtro permanecem nesse diretório.
 
 Todos os comandos abaixo DEVEM existir exatamente como nomeados, salvo dispensa conforme §18.1:
 
-- **Workspace:** `agent:setup` preparar ambiente; `agent:doctor` diagnosticar ambiente/dependências/configuração; `agent:repair` corrigir inconsistências conhecidas; `agent:clean` remover caches/temporários/artefatos definidos; `agent:status` resumir workspace e expor capacidades; `agent:context` gerar contexto executivo para IA; `agent:workspace` gerar snapshot consolidado.
-- **Sistema operacional:** `agent:pwd` diretório atual; `agent:ls` arquivos relevantes; `agent:tree` árvore resumida; `agent:find` localizar arquivos; `agent:search` pesquisar conteúdo estruturado; `agent:grep` filtrar texto; `agent:head`/`agent:tail` exibir extremos de arquivo; `agent:view` exibir conteúdo filtrado; `agent:stat` metadados; `agent:size` tamanho consolidado; `agent:hash` hashes; `agent:diff-file` comparar arquivos; `agent:logs` filtrar/resumir logs; `agent:process` listar processos do projeto; `agent:kill` encerrá-los sob salvaguardas; `agent:ports` portas usadas; `agent:compress`/`agent:extract` compactar/extrair.
-- **Git:** `agent:git-status` estado; `agent:git-fetch` referências remotas; `agent:git-pull` sincronizar remoto; `agent:git-push` publicar; `agent:git-sync` sincronização completa; `agent:git-add` adicionar alterações; `agent:git-commit` criar commit conforme norma; `agent:git-branch` branches; `agent:git-switch` alternância; `agent:git-tag` tags; `agent:git-log` histórico resumido; `agent:git-show` detalhes de commit; `agent:git-history` histórico consolidado; `agent:git-diff` comparar revisões/arquivos; `agent:git-blame` autoria; `agent:git-reset` reset controlado; `agent:git-restore` restaurar; `agent:git-clean` limpar não versionados; `agent:git-stash` stash; `agent:git-prune` remover referências obsoletas; `agent:git-gc` otimizar repositório; `agent:git-last-release` localizar último commit `release:`; `agent:git-release-notes` gerar Release Notes; `agent:git-changelog` consolidar histórico entre revisões.
-- **Build/publicação:** `agent:build` build; `agent:verify` validação integral; `agent:dist` distribuição final; `agent:package` empacotamento; `agent:release` Release completo; `agent:publish` publicação; `agent:deploy` deploy; `agent:rollback` rollback.
+- **Infraestrutura/workspace:** `agent:filter` filtrar toda saída; `agent:setup` preparar ambiente; `agent:doctor` diagnosticar ambiente/dependências/configuração; `agent:repair` corrigir inconsistências conhecidas; `agent:clean` remover caches/temporários/artefatos definidos; `agent:status` resumir workspace e validar capacidades; `agent:context` gerar contexto executivo para IA; `agent:workspace` gerar snapshot consolidado.
+- **Sistema operacional:** `agent:pwd` diretório atual; `agent:ls` arquivos relevantes; `agent:tree` árvore resumida; `agent:find` localizar arquivos; `agent:search` pesquisar conteúdo estruturado; `agent:grep` filtrar texto; `agent:head`/`agent:tail` exibir extremos; `agent:view` exibir conteúdo filtrado/paginado; `agent:stat` metadados; `agent:size` tamanho consolidado; `agent:hash` hashes; `agent:diff-file` comparar arquivos; `agent:logs` filtrar/resumir logs; `agent:process` listar processos do projeto; `agent:kill` encerrá-los sob salvaguardas; `agent:ports` portas usadas; `agent:compress`/`agent:extract` compactar/extrair.
+- **Git:** `agent:git-status` estado; `agent:git-fetch` referências remotas; `agent:git-pull` sincronizar remoto; `agent:git-push` publicar; `agent:git-sync` sincronização completa; `agent:git-add` adicionar alterações; `agent:git-commit` criar commit conforme norma; `agent:git-branch` branches; `agent:git-switch` alternância; `agent:git-tag` tags; `agent:git-log` histórico resumido; `agent:git-show` detalhes de commit; `agent:git-history` histórico consolidado; `agent:git-diff` comparar revisões/arquivos; `agent:git-blame` autoria; `agent:git-reset` reset controlado; `agent:git-restore` restaurar; `agent:git-clean` limpar não versionados; `agent:git-stash` stash; `agent:git-prune` remover referências obsoletas; `agent:git-gc` otimizar; `agent:git-last-release` localizar último commit `release:`; `agent:git-release-notes` gerar Release Notes; `agent:git-changelog` consolidar histórico entre revisões.
+- **Build/publicação:** `agent:build` build; `agent:verify` validação integral; `agent:dist` distribuição; `agent:package` empacotamento; `agent:release` Release; `agent:publish` publicação; `agent:deploy` deploy; `agent:rollback` rollback.
 - **Qualidade:** `agent:test` testes integrais; `agent:test:<grupo>` subconjunto nominal; `agent:lint` lint; `agent:format` formatação; `agent:typecheck` tipos; `agent:benchmark` benchmarks; `agent:security` segurança; `agent:analyze` análise estática.
 - **Dependências:** `agent:deps` auditoria; `agent:update-deps` atualização; `agent:licenses` licenças.
-- **Documentação/governança:** `agent:index` índices; `agent:map` mapas/grafos; `agent:handoff` handoff e “Implementações em andamento”; `agent:docs` documentação derivada; `agent:rcf` artefatos RCF; `agent:agents` artefatos AGENTS.
-- **Dados:** `agent:parse-data` processar arquivos volumosos; `agent:summarize` sumários estruturados; `agent:convert` converter formatos; `agent:validate-data` validar dados estruturados; `agent:index-data` indexar grandes conjuntos; `agent:query-data` consultar dados deterministicamente.
+- **Documentação/governança:** `agent:index` índices; `agent:map` mapas/grafos; `agent:handoff` handoff/“Implementações em andamento”; `agent:docs` documentação derivada; `agent:rcf` artefatos RCF; `agent:agents` artefatos AGENTS.
+- **Dados:** `agent:parse-data` processar arquivos volumosos; `agent:summarize` sumários estruturados; `agent:convert` converter formatos; `agent:validate-data` validar dados; `agent:index-data` indexar conjuntos; `agent:query-data` consultar dados deterministicamente.
 
-Novos comandos PODEM ser adicionados conforme §18.1. Operações equivalentes DEVEM compartilhar núcleo/composição, nunca lógica divergente. Remoção, renomeação ou dispensa de comando canônico exige alteração normativa da autoridade competente e transição compatível quando tecnicamente viável.
+Novos comandos PODEM ser adicionados somente com contrato prévio conforme §18.1. Operações equivalentes DEVEM compartilhar núcleo/composição, nunca lógica divergente. Remoção, renomeação ou dispensa de comando canônico exige alteração normativa competente e transição compatível explícita.
