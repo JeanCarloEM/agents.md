@@ -882,6 +882,7 @@ A geração deve:
 - Preservar somente arquivos necessários para execução/publicação, removendo artefatos temporários ou desnecessários.
 - Aplicar otimizações compatíveis com produção.
 - Incluir scripts gerenciados necessários ao mecanismo distribuído, sem incluir hook, extensão local, memória, RCF ou conteúdo de Negócio.
+- Incluir `package.json` executável com `agentsGovernance` que declare scripts e dependências gerenciados; na atualização de um anfitrião, esse manifesto DEVE ser mesclado sem substituir os campos, scripts, dependências, locks ou configurações não declarados.
 
 O processo deve ser resiliente, prevendo falhas de ambiente, inconsistências, erros temporários, conflitos e etapas parcialmente concluídas, utilizando validações, tratamentos adequados e retries quando aplicável.
 

@@ -2,6 +2,10 @@
 
 `AGENTS.md` governa a atuação da IA; RCF governa requisitos, contratos, arquitetura e negócio. Aplicar cumulativamente `./.agents/microconceitos.md` (`MN-2119`, `MN-DENS`, `MN-PRES`, `MN-IA-OPT`, `MN-PREP`, `MN-OUT`, `MN-CMD`, `MN-API`, `MN-DEF`, `MN-STATE`, `MN-VAL`, `MN-REF`). Referência a microconceito o incorpora integralmente.
 
+## Apendice - GESTAO DE CONTEXTO (RFC_COMPLIANT)
+
+- O Agente DEVE executar `/compact` para comprimir o histórico sob alto volume de mensagens (12+).
+
 ## 0. Finalidade, autoridade e portabilidade
 
 ### 0.1–0.5 Finalidade e domínio
@@ -90,13 +94,13 @@ Cenário é especialização reutilizável; regra específica só PODE restringi
 
 Arquivo de cenário DEVE declarar escopo, limites, dependências, contratos, exceções, precedência, segurança, privacidade, acessibilidade, desempenho, compatibilidade e validação; DEVE referenciar regra comum, não copiá-la. Antes de implementar, IA DEVE classificar projeto, carregar cenário/dependência integral, aplicar cumulativamente e registrar aplicação/dispensa. Falha de integridade normativa NÃO DEVE ser suprida por inferência. Contradição DEVE registrar `CONTRADIÇÃO DETECTADA: <origem> vs <regra> — Aplicando a regra de maior precedência.`
 
-| Cenário | Arquivo/seção | Dependência | Aplicação |
-| --- | --- | --- | --- |
-| Web Page Like | `./.agents/webPageLike.md` §1 | — | navegador/engine web |
-| Web estático/hospedagem | mesmo §2 | §1 | gerador, template, páginas |
-| Editorial | mesmo §3 | §1; §2 quando aplicável | artigo, post, sermão, ensaio, notícia |
-| Release | `./.agents/release.md` | — | versão, tag, asset ou release publicável |
-| Publicação de Conteúdo | `./.agents/publish.md` | Web/RCF quando aplicável | artefato de Negócio publicável |
+| Cenário                 | Arquivo/seção                 | Dependência              | Aplicação                                |
+| ----------------------- | ----------------------------- | ------------------------ | ---------------------------------------- |
+| Web Page Like           | `./.agents/webPageLike.md` §1 | —                        | navegador/engine web                     |
+| Web estático/hospedagem | mesmo §2                      | §1                       | gerador, template, páginas               |
+| Editorial               | mesmo §3                      | §1; §2 quando aplicável  | artigo, post, sermão, ensaio, notícia    |
+| Release                 | `./.agents/release.md`        | —                        | versão, tag, asset ou release publicável |
+| Publicação de Conteúdo  | `./.agents/publish.md`        | Web/RCF quando aplicável | artefato de Negócio publicável           |
 
 ## 18. API operacional
 

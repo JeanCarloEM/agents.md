@@ -12,9 +12,9 @@ Governanca operacional portavel para agentes IA. O target construtivo fica em `s
 - `npm run agent:status`: resume capacidades canonicas.
 - `npm run agent:filter -- --run <comando> [args]`: entrega a saída do comando em JSONL compacto e ordenado para IA.
 - `npm run agent:index`: gera `index.json` minificado a partir de `src/`.
-- `npm run agent:dist`: gera `dist/`, `dist/release.json` e pacote `agents-v<versao>.zip`.
+- `npm run agent:dist`: gera `dist/`, `dist/package.json`, `dist/release.json` e pacote `agents-v<versao>.zip`.
 - `npm run agent:verify`: valida scripts, indexador e dist.
-- `npm run agent:agents`: executa atualizacao automatica da governanca operacional pela superficie filtrada.
+- `npm run agent:agents`: executa atualizacao automatica da governanca operacional pela superficie filtrada, mesclando somente scripts/dependencias declarados em `agentsGovernance` no `package.json` anfitriao.
 - `npm run agent:handoff`: gera [handoff.md](handoff.md) a partir de `.agents/continue.ia`.
 
 ## Release
