@@ -172,7 +172,7 @@ decisoes=Versao explicitamente confirmada=0.0.0-beta; o gatilho release sera o u
 verificacoes=workflow 29173646187 concluido com sucesso; tag v0.0.0-beta aponta para 22e8373; release latest possui agents-v0.0.0-beta.zip SHA-256 aac95bbc871f68fa12b59bb48de2b52a062107d0c107c7046200eb8da7af28f5 e release-note.txt; commit marcador=43ea03a; gatilho removido.
 pendencias=nenhuma.
 
-FT-011|nome=Manifesto executavel e mesclagem segura de package.json|escopo=Tecnico|prioridade=alta|status=em andamento|inicio=20260712.003500|atualizacao=20260711.232206|conclusao=
+FT-011|nome=Manifesto executavel e mesclagem segura de package.json|escopo=Tecnico|prioridade=alta|status=concluido|inicio=20260712.003500|atualizacao=20260711.232430|conclusao=20260711.232430
 objetivo=Distribuir package.json executavel e atualizar projetos existentes por mesclagem rastreavel de scripts e dependencias de agentes, preservando dados especificos do anfitriao.
 1/4 Contrato e inventario [concluido]
   1/3 Auditar dist, atualizador e manifesto atual [concluido]
@@ -187,13 +187,13 @@ objetivo=Distribuir package.json executavel e atualizar projetos existentes por 
   1/3 Atualizar RCF, autoupdate e README [concluido]
   2/3 Criar ensaios isolados de instalacao e atualizacao [concluido]
   3/3 Executar verificacao integral e artefato [concluido]
-4/4 Fechamento [em andamento]
-  1/3 Atualizar memoria e handoff [em andamento]
-  2/3 Commitar etapas funcionais [pendente]
-  3/3 Publicar branch dev [pendente]
+4/4 Fechamento [concluido]
+  1/3 Atualizar memoria e handoff [concluido]
+  2/3 Commitar etapas funcionais [concluido]
+  3/3 Publicar branch dev [concluido]
 decisoes=Somente scripts namespaces agent:* e agents:update serao gerenciados no anfitriao; aliases universais do pacote distribuido permanecem executaveis no release isolado, mas nao sobrescrevem scripts de projeto existentes. Dependencias serao declaradas explicitamente no metadado agentsGovernance e mescladas somente quando pertencentes a esse conjunto.
 invariantes=name, version, private, descricao, scripts nao gerenciados, dependencias nao gerenciadas, lockfiles e configuracoes do anfitriao permanecem intocados; package.json sujo bloqueia atualizacao sem --force.
-pendencias=Confirmar versao explicita para publicar release sucessora; pre-release nao admite inferencia pelo RCF.
+pendencias=Nenhuma nesta FT; release sucessora requer nova FT e versao explicitamente confirmada.
 verificacoes=node --check repo-tools.js e update-agents.js OK; agent:dist OK com dist/package.json e 89 scripts; MERGE_PACKAGE_TEST_OK; LEGACY_COLLISION_TEST_OK; DISTRIBUTION_PACKAGE_DISCOVERY_OK; agent:verify OK; git diff --check OK.
 falhas=apply_patch recusou tres gravacoes consecutivas em scripts/.agents/repo-tools.js embora o arquivo nao esteja somente-leitura; retomada posterior liberou a gravacao, sem codigo parcial anterior.
 
@@ -210,12 +210,12 @@ objetivo=Impedir que main/master permaneça defasado ou órfão após FT conclu�
 3/4 Validacao [em andamento]
   1/3 Validar ordem do workflow e regra de branch [concluido]
   2/3 Executar verificacao integral e artefato [concluido]
-  3/3 Confirmar merge atual dev para main [pendente]
+  3/3 Confirmar merge atual dev para main [em andamento]
 4/4 Fechamento [pendente]
   1/3 Atualizar memoria e handoff [pendente]
   2/3 Commitar etapas funcionais [pendente]
   3/3 Publicar branches convergidas [pendente]
 decisoes=Convergencia usa merge normal ou fast-forward conforme historico; conflito bloqueia publicacao e exige resolucao explicita, sem reset, rebase forcado ou sobrescrita.
-pendencias=Conclusao das FTs ativas antes do merge atual.
+pendencias=Executar fast-forward atual de dev para main apos publicar o registro de conclusao da FT-011.
 verificacoes=CONVERGENCIA_NORMATIVA_OK; node --check release-workflow.js; npm run agent:verify OK.
 falhas=agent:verify reconstroi release.json sem metadado de release; detector aceita extensao de gatilho sem autorizacao explicita do RCF; agent:release:trigger pode sobrescrever sinalizador existente.
