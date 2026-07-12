@@ -151,5 +151,6 @@ objetivo=Alinhar a ordem do workflow ao cenario Release e aplicar retry controla
   3/3 Commitar etapas funcionais [concluido]
 decisoes=O commit release permanece posterior ao asset publicado para obedecer a ordem do cenario; o marcador continua removendo o gatilho e registrando o estado publicado.
 verificacoes=WORKFLOW_RELEASE_ORDER_OK; WORKFLOW_RESILIENCE_OK; node --check release-workflow.js; npm run agent:verify OK.
-pendencias=nenhuma local; execucao do workflow remoto depende de push e credenciais.
+push=origin/dev publicado com sucesso de 19076ed ate 611a0bc em 20260712.001500.
+pendencias=nenhuma local; execucao remota integral aguarda gatilho release real.
 falhas=agent:verify reconstroi release.json sem metadado de release; detector aceita extensao de gatilho sem autorizacao explicita do RCF; agent:release:trigger pode sobrescrever sinalizador existente.
