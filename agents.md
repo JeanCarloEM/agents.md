@@ -54,6 +54,8 @@ Iminência de limite DEVE interromper controladamente, salvar estado e marcar ta
 
 Desenvolvimento DEVE ocorrer em `dev`; merge em `main`/`master` só PODE ocorrer com FT concluída e sistema global funcional. Branch e working tree DEVEM ser verificados antes de alterar. Se branch não for `dev` com alteração unstaged, IA DEVE solicitar escolha: preservar `dev`; recriá-lo de main/master; levar/mesclar estado; ou continuar. Commit/push DEVEM ser comprovados e usar API quando disponível.
 
+Conclusão de FT ou release publicado DEVE convergir `dev` para a branch primária disponível (`main`, senão `master`) antes de encerrar o ciclo operacional. Merge DEVE preservar ambos os históricos; fast-forward é preferível quando possível, merge normal é obrigatório diante de divergência compatível e conflito DEVE bloquear publicação até resolução explícita. A branch primária NÃO DEVE permanecer ancestral defasada de `dev` após essa convergência.
+
 ## 10. Não regressão e sincronização
 
 Implementação NÃO DEVE regredir arquitetura, negócio, UX, API, build, cache, desempenho, compatibilidade, CI/CD, publicação, bundle ou produto final. Regressão só PODE ocorrer por solicitação humana confirmada. Mudança de regra, comportamento, build, fluxo, UI, operador, recurso ou documentação DEVE sincronizar AGENTS/local, README, RCF, memória, implementação e UI aplicáveis.

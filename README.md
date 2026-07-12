@@ -22,6 +22,7 @@ Governanca operacional portavel para agentes IA. O target construtivo fica em `s
 - `.github/workflows/release.yml`: executa release manual ou por commit contendo apenas `release` no root.
 - Somente o arquivo `release` no root funciona como gatilho transitório; o workflow remove o arquivo e cria commit `release:`. `publish` fica reservado à Publicação de Conteúdo e este repositório não a aplica.
 - `dist/release-note.txt` e o pacote versionado sao gerados localmente por `agent:release` antes da publicacao do GitHub Release marcado como latest.
+- Release publicado em `dev` converge a branch primária (`main`, senão `master`); conflito de merge interrompe o workflow.
 
 ## Normas
 

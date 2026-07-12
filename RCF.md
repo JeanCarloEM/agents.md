@@ -305,6 +305,8 @@ Se branch ≠ `dev` e houver alterações unstaged, parar e oferecer:
 
 Commit/push por tarefa quando viável e por etapa com prioridade superior. Não declarar operação sem prova. Criar abstrações npm quando reduzirem comandos e custo da IA.
 
+Após FT concluída ou release publicado, `dev` DEVE convergir para a branch primária disponível (`main`, senão `master`). Fast-forward DEVERIA ser usado quando possível; divergência compatível DEVE gerar merge normal e conflito DEVE bloquear publicação até resolução explícita. A branch primária NÃO DEVE permanecer ancestral defasada de `dev` após o ciclo concluído.
+
 ### 3.11 Seções 10–14 — Implementação, build, padrões, validação e documentação
 
 Devem preservar:
