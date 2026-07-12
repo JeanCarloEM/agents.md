@@ -1,5 +1,9 @@
 # RCF — Criação e Reconstrução da Governança Operacional e dos Cenários
 
+## Apendice - GESTAO DE CONTEXTO (RFC_COMPLIANT)
+
+- O Agente DEVE executar `/compact` para comprimir o histórico sob alto volume de mensagens (12+).
+
 ## 0. Finalidade, escopo e autoridade
 
 > Target Construtivo: `./src/`.
@@ -16,7 +20,7 @@ Seu objetivo não é reproduzir texto literal, mas preservar integralmente compo
 
 Se a edição/alteração a ser feita em AGENTS.md`ou cenários for alterar algo que já esteja rigoroso, bem incisiva ou mais rigorosa, incisiva e especializada do que a proposta atual de edição/alteração, não regreda, exceto se explicitamente solicitado e, neste caso, prefira adicionar ponto(s) de exceção se for possível, mantendo aderência ao minimo de tokens e a Regra de Ouro.
 
-**<sup>1</sup> Secundário:** neste caso específico, o *target* é o RCF localizado no root do próprio repositório, atualizar sua especificação conforme solicitações explícitas do desenvolvedor, preservando e consolidando todos os aprimoramentos já incorporados, vedando regressões. Sempre que modificações no **Target Construtivo** alterarem, ampliarem, restringirem ou impactarem regras de negócio, garantir seu espelhamento integral, consistente e sincronizado no próprio RCF.
+**<sup>1</sup> Secundário:** neste caso específico, o _target_ é o RCF localizado no root do próprio repositório, atualizar sua especificação conforme solicitações explícitas do desenvolvedor, preservando e consolidando todos os aprimoramentos já incorporados, vedando regressões. Sempre que modificações no **Target Construtivo** alterarem, ampliarem, restringirem ou impactarem regras de negócio, garantir seu espelhamento integral, consistente e sincronizado no próprio RCF.
 
 **referência**: a normatização correspondente deve ser feita, mas a criação do arquivo não.
 
@@ -853,7 +857,6 @@ A implementação deste RCF deve produzir, conforme escopo:
 
 Não declarar conclusão sem validação integral de §7.
 
-
 ## 9. Indexador
 
 O repositório deve possuir um arquivo indexador normativo localizado no root, denominado `index.json`.
@@ -866,7 +869,6 @@ Requisitos:
 - Deve utilizar formato JSON válido.
 - Deve ser minificado para reduzir tamanho e consumo desnecessário de tokens/processamento.
 - Deve representar apenas arquivos efetivamente existentes e relevantes, evitando referências obsoletas ou arquivos auxiliares sem valor normativo.
-
 
 ## 10. Dist
 
@@ -882,7 +884,6 @@ A geração deve:
 - Incluir scripts gerenciados necessários ao mecanismo distribuído, sem incluir hook, extensão local, memória, RCF ou conteúdo de Negócio.
 
 O processo deve ser resiliente, prevendo falhas de ambiente, inconsistências, erros temporários, conflitos e etapas parcialmente concluídas, utilizando validações, tratamentos adequados e retries quando aplicável.
-
 
 ## 11. Release Automático
 
@@ -905,7 +906,6 @@ O processo deve:
 - Criar obrigatoriamente uma tag de versão correspondente ao release publicado, como `v0.0.0`.
 
 O fluxo deve ser resiliente, prevendo falhas, inconsistências, indisponibilidade temporária de serviços e erros de execução, utilizando validações, tratamentos e retries quando aplicável.
-
 
 ### 11.1 Disparo Automático por Commit
 
@@ -939,7 +939,6 @@ Após identificar o gatilho:
 
 O arquivo `release` deve funcionar apenas como sinalizador transitório, nunca como conteúdo persistente do repositório. `publish`/`publicar` são reservados exclusivamente à Publicação de Conteúdo.
 
-
 ### 11.2 Rastreabilidade de Releases
 
 Toda publicação de release deve gerar obrigatoriamente um commit contendo prefixo:
@@ -947,7 +946,6 @@ Toda publicação de release deve gerar obrigatoriamente um commit contendo pref
 `release:`
 
 Esse commit servirá como marcador histórico da última publicação realizada e como referência para geração automática das próximas notas de versão.
-
 
 ### 11.3 Geração Automática de Release Notes
 
@@ -971,6 +969,7 @@ A síntese poderá utilizar:
 - Caso contrário, algoritmo local ou solução open source capaz de realizar sumarização textual.
 
 O mecanismo escolhido deve priorizar:
+
 - funcionamento offline quando possível;
 - baixo acoplamento;
 - previsibilidade;
