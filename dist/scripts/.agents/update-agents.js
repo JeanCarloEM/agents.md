@@ -37,8 +37,14 @@ const LEGACY_MANAGED_FILES = new Set([
   "scripts/lib/archive.js",
 ]);
 
+class UsageError extends Error {}
+
 async function main(argv = process.argv.slice(2), options = {}) {
   const parsed = parseArgs(argv);
+  if (parsed.help) {
+    console.log(help());
+    return { help: true };
+  }
   const rootDir = options.rootDir || ROOT_DIR;
   const httpClient = options.httpClient || defaultHttpClient;
   const plan = await buildUpdatePlan(rootDir, httpClient);
@@ -70,11 +76,19 @@ async function main(argv = process.argv.slice(2), options = {}) {
 }
 
 function parseArgs(argv = []) {
-  return {
-    check: argv.includes("--check"),
-    dryRun: argv.includes("--dry-run"),
-    force: argv.includes("--force"),
-  };
+  const parsed = { check: false, dryRun: false, force: false, help: false };
+  for (const value of argv) {
+    if (value === "--check") parsed.check = true;
+    else if (value === "--dry-run") parsed.dryRun = true;
+    else if (value === "--force") parsed.force = true;
+    else if (value === "--help") parsed.help = true;
+    else throw new UsageError(`PARAMETRO_INVALIDO:${value}`);
+  }
+  return parsed;
+}
+
+function help() {
+  return "Uso: agents:update [--check|--dry-run] [--force] [--help]";
 }
 
 async function buildUpdatePlan(rootDir, httpClient = defaultHttpClient) {
@@ -203,7 +217,7 @@ function collectRemoteGovernanceFiles(remoteRoot) {
 
   for (const filePath of listFiles(path.join(remoteRoot, ".agents"))) {
     const relativePath = path.relative(remoteRoot, filePath);
-    if (MANAGED_EXTENSIONS.has(path.extname(filePath).toLocaleLowerCase("en-US"))) {
+    if (!isLocalExtensionPath(relativePath) && MANAGED_EXTENSIONS.has(path.extname(filePath).toLocaleLowerCase("en-US"))) {
       addRemoteFile(files, remoteRoot, relativePath);
     }
   }
@@ -674,8 +688,13 @@ function toPosixPath(value) {
 if (require.main === module) {
   main().catch((err) => {
     console.error(`Falha ao atualizar governanca operacional: ${err.message}`);
-    process.exitCode = 1;
+    process.exitCode = err instanceof UsageError ? 2 : 1;
   });
+}
+
+function isLocalExtensionPath(value) {
+  const relative = toPosixPath(value).replace(/^\.\//u, "");
+  return relative.startsWith(".agents/hooks/") || relative.startsWith(".agents/local/");
 }
 
 module.exports = {
@@ -684,6 +703,8 @@ module.exports = {
   compareRemoteFiles,
   assertNoUnmanagedCollisions,
   isRecognizedLegacyGovernanceFile,
+  isLocalExtensionPath,
+  help,
   main,
   mergePackageManifest,
   normalizeGovernanceRelativePath,
