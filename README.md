@@ -2,6 +2,10 @@
 
 Governanca operacional portavel para agentes IA. `./` organiza o repositorio e a governanca ativa; `src/` contem a fonte interna distribuivel; `dist/` e a raiz do artefato publicado. `src/` nao e a raiz da aplicacao: em Web Page Like, a aplicacao coincide com `dist/` e com o `/` percebido pelo usuario.
 
+## Contratos de Scripts
+
+Os contratos reutilizaveis ficam em `.agents/meta/`: `cli` e o contexto minimo (`build`, `release`, `publish`, `maintenance`, `update`, `validation` ou `ia`). O indice `.agents/meta/index.json` relaciona scripts e contextos. Especializacoes do consumidor pertencem a `agents.local.md`, `.agents/local/` ou `.agents/hooks/` e nao sao sobrescritas por `agents:update`.
+
 ## Operacao
 
 - `npm run clean`: remove `dist/`, `index.json` e `handoff.md` gerados.

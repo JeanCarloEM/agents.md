@@ -240,6 +240,36 @@ decisoes=O orquestrador exige versao explicita, branch dev e worktree limpo; nao
 verificacoes=Estado preexistente preservado: release=0.0.2 adicionado e dist/release.json preparado para v0.0.2 no indice. Workflow release.yml ja aceita push de release e workflow_dispatch; repo-tools ja possui releaseLocal e releaseTrigger. node --check release-publish.js/repo-tools.js/release-workflow.js OK; npm run release:publish -- 0.0.2 --dry-run OK sem mutacao; execucao real bloqueou antes de escrever com WORKTREE_NAO_LIMPO.
 falhas=apply_patch nao conseguiu gravar scripts/.agents/repo-tools.js embora o arquivo esteja gravavel; a superficie equivalente usa to-ia diretamente e permanece filtrada. gh existe no shell, mas configuracao do GitHub CLI esta inacessivel neste sandbox; observacao remota fica condicional ao gh autenticado.
 pendencias=Regenerar artefato e validar ciclo real apos resolver o release 0.0.2 preexistente; enviar gatilho, comprovar GitHub Release e convergir branches.
+FT-016|nome=Contrato transversal e metaarquivos de scripts reutilizaveis|escopo=Tecnico|prioridade=alta|status=em_andamento|inicio=20260712.017000|atualizacao=20260712.018000|conclusao=
+objetivo=Normatizar interface comum, extensibilidade, metaarquivos contextuais, reutilizacao multiplataforma, atualizacao segura e empacotamento de scripts reutilizaveis.
+1/5 Norma e FT [concluido]
+  1/4 Definir contrato CLI/API comum, ajuda, erros, modos e compatibilidade [concluido]
+  2/4 Definir extensibilidade formal, configuracao e encaminhamento seguro [concluido]
+  3/4 Definir convencao aninhada de metaarquivos por contexto [concluido]
+  4/4 Sincronizar AGENTS, microconceitos, RCF e memoria [concluido]
+2/5 Arquitetura contextual [concluido]
+  1/4 Criar metaarquivos cli, build, release, publish, manutencao, atualizacao, validacao e IA [concluido]
+  2/4 Declarar referencias deterministicas e leitura minima por comando [concluido]
+  3/4 Definir contratos de hooks, adaptadores e configuracao local preservavel [concluido]
+  4/4 Garantir inclusao recursiva em index, dist e atualizacao [concluido]
+3/5 Auditoria e implementacao [concluido]
+  1/4 Classificar scripts existentes por potencial transversal e contexto [concluido]
+  2/4 Generalizar release-publish e interfaces de ajuda/configuracao [concluido]
+  3/4 Ajustar scripts reutilizaveis e dependencias declaradas [concluido]
+  4/4 Preservar especializacoes locais na atualizacao [concluido]
+4/5 Validacao e empacotamento [em_andamento]
+  1/4 Validar contratos, parametros desconhecidos, dry-run e hooks [concluido]
+  2/4 Gerar index, dist e release em estado seguro [pendente]
+  3/4 Inspecionar metaarquivos, scripts e manifestos distribuidos [pendente]
+  4/4 Comprovar compatibilidade de atualizacao sem sobrescrita local [pendente]
+5/5 Fechamento [pendente]
+  1/3 Atualizar memoria e handoff derivado [pendente]
+  2/3 Compactar contexto operacional [pendente]
+  3/3 Commitar, publicar e convergir dev-main/master [pendente]
+decisoes=Metaarquivos residem em .agents/meta/<contexto>.md; sao normas gerenciadas e distribuidas, enquanto especializacao local usa agents.local.md, .agents/local/ ou .agents/hooks/ e nunca e sobrescrita. Contrato comum usa CLI explicita, --help, parametros tipados, codigos 0/1/2/3/4/130, saida filtrada, modos local/CI e extensoes documentadas. meta/index.json mapeia script para contextos minimos; indexador distribui Markdown/JSON recursivamente; atualizador exclui local/hooks.
+verificacoes=FT-015 permanece ativa e release=0.0.2/dist/release.json preexistentes permanecem no indice; FT-016 nao os altera. Scripts auditados: archive, to-ia, repo-tools, update-agents, generate-agents-status, release-hooks, release-workflow e release-publish. node --check nos seis scripts ajustados OK; ajuda validada; parametros invalidos retornaram 2; raiz e src/.agents/meta possuem paridade.
+falhas=apply_patch continua sem conseguir gravar repo-tools.js para adicionar asserts explicitos de meta no dist; a copia recursiva atual ja inclui src/.agents/meta, mas a verificacao final em worktree seguro deve comprovar o artefato.
+pendencias=Regenerar e inspecionar dist sem alterar release 0.0.2; validar update com especializacao local; encerrar FT-015/FT-016, publicar e convergir branches.
 FT-014|nome=Topologia explicita de repositorio aplicacao e artefato|escopo=Tecnico|prioridade=alta|status=concluido|inicio=20260712.010000|atualizacao=20260712.014000|conclusao=20260712.014000
 objetivo=Eliminar ambiguidade entre root do repositorio, root da aplicacao e root do artefato publicado; corrigir caminhos e validacoes para que a fonte interna nao vaze ao pacote distribuivel.
 1/4 Diagnostico arquitetural [concluido]

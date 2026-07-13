@@ -68,3 +68,94 @@ Objetivo: Disponibilizar comando unico que prepare versao, valide artefato, crie
 </tr>
 </tbody>
 </table>
+
+## FT-016 - Contrato transversal e metaarquivos de scripts reutilizaveis
+
+Objetivo: Normatizar interface comum, extensibilidade, metaarquivos contextuais, reutilizacao multiplataforma, atualizacao segura e empacotamento de scripts reutilizaveis.
+
+<table>
+<thead><tr><th>Etapa</th><th>Tarefa</th><th>Status</th></tr></thead>
+<tbody>
+<tr>
+<td rowspan="4">Norma e FT</td>
+<td>Definir contrato CLI/API comum, ajuda, erros, modos e compatibilidade</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Definir extensibilidade formal, configuracao e encaminhamento seguro</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Definir convencao aninhada de metaarquivos por contexto</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Sincronizar AGENTS, microconceitos, RCF e memoria</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td rowspan="4">Arquitetura contextual</td>
+<td>Criar metaarquivos cli, build, release, publish, manutencao, atualizacao, validacao e IA</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Declarar referencias deterministicas e leitura minima por comando</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Definir contratos de hooks, adaptadores e configuracao local preservavel</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Garantir inclusao recursiva em index, dist e atualizacao</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td rowspan="4">Auditoria e implementacao</td>
+<td>Classificar scripts existentes por potencial transversal e contexto</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Generalizar release-publish e interfaces de ajuda/configuracao</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Ajustar scripts reutilizaveis e dependencias declaradas</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Preservar especializacoes locais na atualizacao</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td rowspan="4">Validacao e empacotamento</td>
+<td>Validar contratos, parametros desconhecidos, dry-run e hooks</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
+</tr>
+<tr>
+<td>Gerar index, dist e release em estado seguro</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td>Inspecionar metaarquivos, scripts e manifestos distribuidos</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td>Comprovar compatibilidade de atualizacao sem sobrescrita local</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td rowspan="3">Fechamento</td>
+<td>Atualizar memoria e handoff derivado</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td>Compactar contexto operacional</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td>Commitar, publicar e convergir dev-main/master</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+</tbody>
+</table>

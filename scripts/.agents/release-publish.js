@@ -10,24 +10,31 @@ const { normalizeReleaseVersion } = require("./release-workflow");
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const PACKAGE_PATH = path.join(ROOT_DIR, "package.json");
 
+class UsageError extends Error {}
+
 function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
+  if (options.help) {
+    process.stdout.write(help());
+    return 0;
+  }
   const version = normalizeReleaseVersion(options.version);
-  const preflight = inspectPreflight(version);
+  const preflight = inspectPreflight(version, options);
 
   if (options.dryRun) {
-    printJson({ code: "RELEASE_PUBLISH_DRY_RUN", ...preflight, version, watch: !options.noWatch });
+    printJson({ code: "RELEASE_PUBLISH_DRY_RUN", ...preflight, configuration: publicOptions(options), version, watch: !options.noWatch });
     return 0;
   }
 
   assertPreflight(preflight);
-  prepareVersionCommit(version);
-  prepareArtifactCommit(version);
-  const trigger = createAndPushTrigger(version);
-  const remote = options.noWatch || !preflight.gh ? null : waitForRemoteRelease(version, trigger.commit);
+  prepareVersionCommit(version, options);
+  prepareArtifactCommit(version, options);
+  const trigger = createAndPushTrigger(version, options);
+  const remote = options.noWatch || !preflight.gh ? null : waitForRemoteRelease(version, trigger.commit, options);
 
   printJson({
     code: remote ? "RELEASE_PUBLISH_OK" : "RELEASE_TRIGGER_ENVIADO",
+    configuration: publicOptions(options),
     githubCli: preflight.gh,
     triggerCommit: trigger.commit,
     version,
@@ -37,36 +44,66 @@ function main(argv = process.argv.slice(2)) {
 }
 
 function parseArgs(argv) {
-  const options = { dryRun: false, noWatch: false, version: "" };
-  for (const value of argv) {
+  const options = {
+    branch: process.env.AGENTS_RELEASE_BRANCH || "dev",
+    dryRun: false,
+    help: false,
+    noWatch: false,
+    primary: process.env.AGENTS_RELEASE_PRIMARY || "",
+    remote: process.env.AGENTS_RELEASE_REMOTE || "origin",
+    version: "",
+    workflow: process.env.AGENTS_RELEASE_WORKFLOW || "release.yml",
+  };
+  for (let index = 0; index < argv.length; index += 1) {
+    const value = argv[index];
     if (value === "--dry-run") {
       options.dryRun = true;
+    } else if (value === "--help") {
+      options.help = true;
     } else if (value === "--no-watch") {
       options.noWatch = true;
+    } else if (["--branch", "--primary", "--remote", "--workflow"].includes(value)) {
+      const key = value.slice(2);
+      options[key] = argv[++index] || "";
+      if (!options[key]) throw new UsageError(`PARAMETRO_NORMATIVO_AUSENTE:${key}`);
+    } else if (value.startsWith("-")) {
+      throw new UsageError(`PARAMETRO_INVALIDO:${value}`);
     } else if (!options.version) {
       options.version = value;
     } else {
-      throw new Error(`PARAMETRO_INVALIDO:${value}`);
+      throw new UsageError(`PARAMETRO_INVALIDO:${value}`);
     }
   }
-  if (!options.version) {
-    throw new Error("PARAMETRO_NORMATIVO_AUSENTE:version");
+  if (!options.help && !options.version) {
+    throw new UsageError("PARAMETRO_NORMATIVO_AUSENTE:version");
   }
+  for (const key of ["branch", "primary", "remote"]) {
+    if (options[key] && !/^[A-Za-z0-9._/-]+$/u.test(options[key])) throw new UsageError(`PARAMETRO_INVALIDO:${key}`);
+  }
+  if (!/^[A-Za-z0-9._-]+\.ya?ml$/u.test(options.workflow)) throw new UsageError("PARAMETRO_INVALIDO:workflow");
   return options;
 }
 
-function inspectPreflight(version) {
+function help() {
+  return "Uso: release:publish <versao> [--dry-run] [--no-watch] [--branch <nome>] [--primary <nome>] [--remote <nome>] [--workflow <arquivo.yml>]\n";
+}
+
+function publicOptions(options) {
+  return { branch: options.branch, primary: options.primary, remote: options.remote, workflow: options.workflow };
+}
+
+function inspectPreflight(version, options = { branch: "dev", workflow: "release.yml" }) {
   const branch = run("git", ["branch", "--show-current"]).stdout.trim();
   const dirty = run("git", ["status", "--porcelain"], { optional: true }).stdout.trim().split(/\r?\n/u).filter(Boolean);
   const tag = `v${version}`;
   const localTag = run("git", ["rev-parse", "--verify", `refs/tags/${tag}`], { optional: true }).status === 0;
-  const workflow = path.join(ROOT_DIR, ".github", "workflows", "release.yml");
+  const workflow = path.join(ROOT_DIR, ".github", "workflows", options.workflow);
   const gh = run("gh", ["--version"], { optional: true }).status === 0;
-  return { branch, dirty, gh, localTag, tag, workflow: fs.existsSync(workflow) };
+  return { branch, dirty, expectedBranch: options.branch, gh, localTag, tag, workflow: fs.existsSync(workflow) };
 }
 
 function assertPreflight(preflight) {
-  if (preflight.branch !== "dev") {
+  if (preflight.branch !== preflight.expectedBranch) {
     throw new Error(`BRANCH_RELEASE_INVALIDA:${preflight.branch || "(vazia)"}`);
   }
   if (preflight.dirty.length) {
@@ -80,43 +117,43 @@ function assertPreflight(preflight) {
   }
 }
 
-function prepareVersionCommit(version) {
+function prepareVersionCommit(version, options) {
   const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, "utf8"));
   pkg.version = version;
   fs.writeFileSync(PACKAGE_PATH, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
   run("git", ["add", "--", "package.json"]);
   assertStagedPaths(["package.json"]);
   run("git", ["commit", "-m", `chore: prepara release v${version}`]);
-  run("git", ["push", "origin", "dev"], { timeout: 120000 });
+  run("git", ["push", options.remote, options.branch], { timeout: 120000 });
 }
 
-function prepareArtifactCommit(version) {
+function prepareArtifactCommit(version, options) {
   run(process.execPath, [path.join(ROOT_DIR, "scripts", ".agents", "repo-tools.js"), "agent:release", version], { timeout: 900000 });
   run(process.execPath, [path.join(ROOT_DIR, "scripts", ".agents", "repo-tools.js"), "agent:verify"], { timeout: 900000 });
   run("git", ["add", "--", "dist", "index.json"]);
   assertStagedPaths(["dist/", "index.json"], { prefixes: true });
   run("git", ["commit", "-m", `chore: gera artefato v${version}`]);
-  run("git", ["push", "origin", "dev"], { timeout: 120000 });
+  run("git", ["push", options.remote, options.branch], { timeout: 120000 });
 }
 
-function createAndPushTrigger(version) {
+function createAndPushTrigger(version, options) {
   run(process.execPath, [path.join(ROOT_DIR, "scripts", ".agents", "repo-tools.js"), "agent:release:trigger", version]);
   run("git", ["add", "--", "release"]);
   assertStagedPaths(["release"], { statuses: ["A"] });
   run("git", ["commit", "-m", `chore: aciona release v${version}`]);
   const commit = run("git", ["rev-parse", "HEAD"]).stdout.trim();
-  run("git", ["push", "origin", "dev"], { timeout: 120000 });
+  run("git", ["push", options.remote, options.branch], { timeout: 120000 });
   return { commit };
 }
 
-function waitForRemoteRelease(version, triggerCommit) {
-  const runId = findWorkflowRun(triggerCommit);
+function waitForRemoteRelease(version, triggerCommit, options) {
+  const runId = findWorkflowRun(triggerCommit, options);
   run("gh", ["run", "watch", runId, "--exit-status"], { timeout: 900000 });
-  const primary = resolvePrimaryBranch();
-  run("git", ["fetch", "origin", "dev", primary], { timeout: 120000 });
-  run("git", ["pull", "--ff-only", "origin", "dev"], { timeout: 120000 });
-  const dev = run("git", ["rev-parse", "origin/dev"]).stdout.trim();
-  const primaryCommit = run("git", ["rev-parse", `origin/${primary}`]).stdout.trim();
+  const primary = resolvePrimaryBranch(options);
+  run("git", ["fetch", options.remote, options.branch, primary], { timeout: 120000 });
+  run("git", ["pull", "--ff-only", options.remote, options.branch], { timeout: 120000 });
+  const dev = run("git", ["rev-parse", `${options.remote}/${options.branch}`]).stdout.trim();
+  const primaryCommit = run("git", ["rev-parse", `${options.remote}/${primary}`]).stdout.trim();
   if (dev !== primaryCommit) {
     throw new Error(`CONVERGENCIA_REMOTA_PENDENTE:dev=${dev};${primary}=${primaryCommit}`);
   }
@@ -127,12 +164,12 @@ function waitForRemoteRelease(version, triggerCommit) {
   return { primary, releaseUrl: release.url, workflowRun: Number(runId) };
 }
 
-function findWorkflowRun(triggerCommit) {
+function findWorkflowRun(triggerCommit, options) {
   for (const delay of [0, 1000, 3000]) {
     if (delay) {
       sleep(delay);
     }
-    const result = run("gh", ["run", "list", "--workflow", "release.yml", "--branch", "dev", "--event", "push", "--limit", "20", "--json", "databaseId,headSha"], { optional: true, timeout: 120000 });
+    const result = run("gh", ["run", "list", "--workflow", options.workflow, "--branch", options.branch, "--event", "push", "--limit", "20", "--json", "databaseId,headSha"], { optional: true, timeout: 120000 });
     if (result.status !== 0) {
       continue;
     }
@@ -144,9 +181,10 @@ function findWorkflowRun(triggerCommit) {
   throw new Error(`WORKFLOW_RELEASE_NAO_ENCONTRADO:${triggerCommit}`);
 }
 
-function resolvePrimaryBranch() {
-  for (const branch of ["main", "master"]) {
-    if (run("git", ["ls-remote", "--exit-code", "--heads", "origin", branch], { optional: true, timeout: 120000 }).status === 0) {
+function resolvePrimaryBranch(options) {
+  const candidates = options.primary ? [options.primary] : ["main", "master"];
+  for (const branch of candidates) {
+    if (run("git", ["ls-remote", "--exit-code", "--heads", options.remote, branch], { optional: true, timeout: 120000 }).status === 0) {
       return branch;
     }
   }
@@ -194,8 +232,8 @@ if (require.main === module) {
     process.exitCode = main();
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
-    process.exitCode = 1;
+    process.exitCode = error instanceof UsageError ? 2 : 1;
   }
 }
 
-module.exports = { inspectPreflight, main, parseArgs };
+module.exports = { help, inspectPreflight, main, parseArgs };
