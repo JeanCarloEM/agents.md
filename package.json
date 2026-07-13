@@ -1,14 +1,18 @@
 {
   "name": "agents-governance",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "license": "MPL-2.0",
   "description": "Governanca operacional portavel para agentes IA.",
   "main": "AGENTS.md",
   "agentsGovernance": {
     "schema": 1,
-    "managedScriptPrefixes": ["agent:"],
-    "managedScripts": ["agents:update"],
+    "managedScriptPrefixes": [
+      "agent:"
+    ],
+    "managedScripts": [
+      "agents:update"
+    ],
     "dependencies": [],
     "optionalDependencies": []
   },
@@ -50,7 +54,6 @@
     "agent:setup": "node scripts/.agents/repo-tools.js agent:setup",
     "agent:doctor": "node scripts/.agents/repo-tools.js agent:doctor",
     "agent:repair": "node scripts/.agents/repo-tools.js agent:repair",
-    "agent:clean": "node scripts/.agents/repo-tools.js agent:clean",
     "agent:context": "node scripts/.agents/repo-tools.js agent:context",
     "agent:workspace": "node scripts/.agents/repo-tools.js agent:workspace",
     "agent:diff-file": "node scripts/.agents/repo-tools.js agent:diff-file",
@@ -82,7 +85,6 @@
     "agent:git-release-notes": "node scripts/.agents/repo-tools.js agent:git-release-notes",
     "agent:git-changelog": "node scripts/.agents/repo-tools.js agent:git-changelog",
     "agent:package": "node scripts/.agents/repo-tools.js agent:package",
-    "agent:repair": "node scripts/.agents/repo-tools.js agent:repair",
     "agent:release": "node scripts/.agents/repo-tools.js agent:release",
     "agent:release:trigger": "node scripts/.agents/repo-tools.js agent:release:trigger",
     "agent:release:publish": "node scripts/.agents/to-ia.js --command agent:release:publish --run node scripts/.agents/release-publish.js",
