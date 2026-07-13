@@ -56,15 +56,15 @@ Objetivo: Disponibilizar comando unico que prepare versao, valide artefato, crie
 <tr>
 <td rowspan="3">Fechamento</td>
 <td>Atualizar memoria e handoff derivado</td>
-<td><span style="color:#ca8a04">&#9679;</span> em andamento</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 <tr>
 <td>Compactar contexto operacional</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 <tr>
 <td>Commitar, publicar e convergir branches</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#ca8a04">&#9679;</span> em andamento</td>
 </tr>
 </tbody>
 </table>
@@ -147,15 +147,15 @@ Objetivo: Normatizar interface comum, extensibilidade, metaarquivos contextuais,
 <tr>
 <td rowspan="3">Fechamento</td>
 <td>Atualizar memoria e handoff derivado</td>
-<td><span style="color:#ca8a04">&#9679;</span> em andamento</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 <tr>
 <td>Compactar contexto operacional</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 <tr>
 <td>Commitar, publicar e convergir dev-main/master</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#ca8a04">&#9679;</span> em andamento</td>
 </tr>
 </tbody>
 </table>
