@@ -1,6 +1,6 @@
 # agents-governance
 
-Governanca operacional portavel para agentes IA. O target construtivo fica em `src/`; releases sao gerados em `dist/`.
+Governanca operacional portavel para agentes IA. `./` organiza o repositorio e a governanca ativa; `src/` contem a fonte interna distribuivel; `dist/` e a raiz do artefato publicado. `src/` nao e a raiz da aplicacao: em Web Page Like, a aplicacao coincide com `dist/` e com o `/` percebido pelo usuario.
 
 ## Operacao
 
@@ -27,8 +27,8 @@ Governanca operacional portavel para agentes IA. O target construtivo fica em `s
 ## Normas
 
 - [RCF.md](RCF.md): contrato material do projeto.
-- [agents.md](agents.md): governanca operacional aplicavel a este workspace.
-- [src/agents.md](src/agents.md): artefato normativo distribuivel.
+- [AGENTS.md](AGENTS.md): governanca operacional aplicavel a este workspace.
+- [src/AGENTS.md](src/AGENTS.md): fonte do artefato normativo distribuivel.
 - [src/.agents/.autoupdate.md](src/.agents/.autoupdate.md): contrato de atualizacao automatica.
 - [src/.agents/webPageLike.md](src/.agents/webPageLike.md): cenario Web Page Like.
 - [src/.agents/release.md](src/.agents/release.md): cenario Release.

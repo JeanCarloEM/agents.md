@@ -4,7 +4,7 @@
   "private": false,
   "license": "MPL-2.0",
   "description": "Governanca operacional portavel para agentes IA.",
-  "main": "src/agents.md",
+  "main": "AGENTS.md",
   "agentsGovernance": {
     "schema": 1,
     "managedScriptPrefixes": ["agent:"],

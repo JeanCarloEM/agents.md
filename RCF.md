@@ -2,11 +2,13 @@
 
 ## Apendice - GESTAO DE CONTEXTO (RFC_COMPLIANT)
 
-- O Agente DEVE executar `/compact` para comprimir o histórico sob alto volume de mensagens (12+).
+- O Agente DEVE executar `/compact` para comprimir o histórico sob alto volume de mensagens (12+). Quando a plataforma não expuser `/compact`, `agent:compress` DEVE gerar projeção resumida e retomável a partir da memória canônica, atualizar somente derivados autorizados e NÃO DEVE apagar FT dentro da retenção.
 
 ## 0. Finalidade, escopo e autoridade
 
 > Target Construtivo: `./src/`.
+>
+> Topologia obrigatória: raiz do repositório `./`; estrutura-fonte `./src/`; raiz do artefato publicado `./dist/`. `./` organiza e governa, `./src/` contém o produto-fonte e `./dist/` é a superfície distribuível; a raiz da aplicação é declarada pelo cenário e, em Web Page Like, coincide com `./dist/` e com `/` público. Esses domínios NÃO são equivalentes.
 
 Este RCF define as regras de negócio necessárias para reconstruir, validar e evoluir a arquitetura normativa composta por:
 
@@ -23,6 +25,10 @@ Se a edição/alteração a ser feita em AGENTS.md`ou cenários for alterar algo
 **<sup>1</sup> Secundário:** neste caso específico, o _target_ é o RCF localizado no root do próprio repositório, atualizar sua especificação conforme solicitações explícitas do desenvolvedor, preservando e consolidando todos os aprimoramentos já incorporados, vedando regressões. Sempre que modificações no **Target Construtivo** alterarem, ampliarem, restringirem ou impactarem regras de negócio, garantir seu espelhamento integral, consistente e sincronizado no próprio RCF.
 
 **referência**: a normatização correspondente deve ser feita, mas a criação do arquivo não.
+
+### 0.0 Topologia, segregação e precedência arquitetural
+
+A raiz do repositório contém exclusivamente governança ativa, documentação, manifesto, automação e infraestrutura transversal. Implementação, código-fonte e recursos internos DEVEM permanecer em `./src/` ou estrutura-fonte equivalente; essa estrutura NÃO é a raiz da aplicação. Exceção exige imposição verificável de framework, convenção obrigatória do ecossistema, gerador ou compilador. Conveniência NÃO constitui exceção. `./dist/` contém somente o artefato distribuível/publicado e NÃO DEVE depender de `./src/` em caminho, manifesto ou runtime. Em cenário Web Page Like, raiz da aplicação e `./dist/`/saída declarada correspondem ao `/` público percebido pelo usuário e NÃO DEVEM expor fonte interna. AGENTS possui precedência operacional: RCF somente especializa o produto sem deslocar a governança ativa, inverter os roots ou reduzir esta segregação. O espelho local entre governança ativa e fonte distribuível deste repositório somente valida o pacote produzido; NÃO escreve em `./src/`, NÃO altera consumidor e NÃO participa do `agents:update` de outro repositório.
 
 ### 0.1 Regra de ouro ao criar, editar e refatorar
 
