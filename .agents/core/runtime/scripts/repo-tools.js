@@ -22,10 +22,12 @@ const RELEASE_PATH = path.join(DIST_DIR, "release.json");
 const RELEASE_NOTE_PATH = path.join(DIST_DIR, "release-note.txt");
 const PACKAGE_PATH = path.join(ROOT_DIR, "package.json");
 const DISTRIBUTION_PACKAGE_PATH = path.join(DIST_DIR, "package.json");
+const UPDATE_FORMAT_PATH = path.join(ROOT_DIR, ".agents", "core", "update", "formats", "governance-manifest.v2.json");
 const NORMATIVE_MIRRORS = [
   "AGENTS.md",
   path.join(".agents", "core", "contracts.md"),
   path.join(".agents", "core", "update", "scenario.md"),
+  path.join(".agents", "core", "update", "formats", "governance-manifest.v2.json"),
   path.join(".agents", "core", "concepts", "microconceitos.md"),
   path.join(".agents", "scenarios", "content-publication", "scenario.md"),
   path.join(".agents", "scenarios", "release", "scenario.md"),
@@ -309,11 +311,19 @@ function buildIndex() {
     }))
     .sort((a, b) => a.path.localeCompare(b.path, "en"));
 
-  return {
+  const index = {
     files,
     root: "src",
     schema: 1,
   };
+  index.update = createGovernanceManifest(buildDistributionFiles(index), (entry) => fs.readFileSync(path.join(ROOT_DIR, entry.sourcePath)));
+  index.update.files.push({
+    kind: "package",
+    path: "package.json",
+    sha256: hashFile(PACKAGE_PATH),
+    source: "package.json",
+  });
+  return index;
 }
 
 function buildDist(options = {}) {
@@ -356,6 +366,7 @@ function buildDist(options = {}) {
       version: releaseVersion,
     };
   }
+  releaseIndex.update = createGovernanceManifest(releaseIndex.files, (entry) => fs.readFileSync(path.join(DIST_DIR, entry.path)));
   writeJsonMinified(RELEASE_PATH, releaseIndex);
 
   const archivePath = path.join(DIST_DIR, archiveName);
@@ -386,6 +397,21 @@ function buildDistributionFiles(index) {
       sourcePath: toPosix(path.relative(ROOT_DIR, filePath)),
     }));
   return [...normative, ...scripts].sort((a, b) => a.path.localeCompare(b.path, "en"));
+}
+
+function createGovernanceManifest(entries, contentForEntry) {
+  const format = JSON.parse(fs.readFileSync(UPDATE_FORMAT_PATH, "utf8"));
+  return {
+    format: format.format,
+    marker: format.marker,
+    schema: format.version,
+    files: entries.map((entry) => ({
+      ...(entry.kind ? { kind: entry.kind } : {}),
+      path: entry.path,
+      ...(entry.sourcePath ? { source: entry.sourcePath } : {}),
+      sha256: crypto.createHash("sha256").update(contentForEntry(entry)).digest("hex"),
+    })),
+  };
 }
 
 function buildDistributionPackage() {
@@ -469,6 +495,7 @@ function validateIndex(index) {
       throw new Error(`Entrada invalida no indexador: ${JSON.stringify(file)}`);
     }
   }
+  validateGovernanceManifest(index.update, "index.json");
 }
 
 function validateDist() {
@@ -489,6 +516,7 @@ function validateDist() {
   if (!release.files.some((file) => file.path === "package.json")) {
     throw new Error("dist/release.json nao indexa package.json.");
   }
+  validateGovernanceManifest(release.update, "dist/release.json");
   const distributionPackage = JSON.parse(fs.readFileSync(DISTRIBUTION_PACKAGE_PATH, "utf8"));
   assertPublishedMain(distributionPackage);
   const policy = distributionPackage.agentsGovernance;
@@ -497,6 +525,21 @@ function validateDist() {
     !Array.isArray(policy.optionalDependencies) || !distributionPackage.scripts ||
     !distributionPackage.scripts["agent:agents"] || !distributionPackage.scripts["agents:update"]) {
     throw new Error("dist/package.json nao contem contrato executavel de governanca.");
+  }
+}
+
+function validateGovernanceManifest(manifest, label) {
+  const format = JSON.parse(fs.readFileSync(UPDATE_FORMAT_PATH, "utf8"));
+  if (!manifest || manifest.format !== format.format || manifest.schema !== format.version ||
+    manifest.marker !== format.marker || !Array.isArray(manifest.files) || manifest.files.length === 0) {
+    throw new Error(`${label} sem manifesto de atualizacao valido.`);
+  }
+  const paths = new Set();
+  for (const entry of manifest.files) {
+    if (!entry || !entry.path || !entry.sha256 || paths.has(entry.path)) {
+      throw new Error(`${label} possui entrada de atualizacao invalida.`);
+    }
+    paths.add(entry.path);
   }
 }
 
@@ -961,6 +1004,10 @@ function listFiles(dirPath) {
 function writeJsonMinified(filePath, value) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, JSON.stringify(value), "utf8");
+}
+
+function hashFile(filePath) {
+  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
 }
 
 function assertDirectory(dirPath, message) {

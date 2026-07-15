@@ -18,7 +18,17 @@ tmp/
 /.agents/continue.dev
 !/.agents/*.md
 !/.agents/**/*.md
+!/.agents/core/
+!/.agents/core/update/
+!/.agents/core/update/formats/
+!/.agents/core/update/formats/*.json
+!/.agents/core/update/migrations/
+!/.agents/core/update/migrations/*.js
 
 /src/.agents/*
 !/src/.agents/*.md
 !/src/.agents/**/*.md
+!/src/.agents/core/
+!/src/.agents/core/update/
+!/src/.agents/core/update/formats/
+!/src/.agents/core/update/formats/*.json

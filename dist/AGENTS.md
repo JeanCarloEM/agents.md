@@ -24,7 +24,7 @@ Somente `./AGENTS.md`, `./.agents/` e importações governam a IA; homônimo sob
 
 ### 0.12 Atualização
 
-Todo repositório DEVE expor `agent:agents`; `agents:update` PODE ser alias. Criação/reparo DEVE observar `./.agents/core/update/scenario.md` quando aplicável.
+Todo repositório DEVE expor `agent:agents`; `agents:update` PODE ser alias. Criação/reparo DEVE observar `./.agents/core/update/scenario.md` quando aplicável. A origem recebida por release validado ou branch primária DEVE definir integralmente o estado gerenciado: dado preexistente só PODE servir à migração, à detecção de legado e à limpeza, nunca a repor ou conservar recurso gerenciado ausente da origem. Atualização DEVE remover somente legado cuja gestão anterior seja comprovada e preservar integralmente `agents.local.md`, `./.agents/local/`, `./.agents/hooks/` e adaptador declarado. Alteração de formato, caminho, notação, recurso ou estrutura gerenciada DEVE trazer descritor versionado, marcador da variação e conversor permanente para a versão anterior; ausência futura do formato original NÃO autoriza apagar seu conversor ou perder equivalência transitória. Arquivo de configuração equivalente DEVERIA usar parser único e descritor formal de linguagem/versionamento, para reduzir mudanças estruturais e manter leitura, validação e conversão coerentes.
 
 ### 0.13 Raízes arquiteturais
 
