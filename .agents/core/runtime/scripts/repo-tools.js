@@ -320,7 +320,7 @@ function buildIndex() {
   index.update.files.push({
     kind: "package",
     path: "package.json",
-    sha256: hashFile(PACKAGE_PATH),
+    sha256: hashTextFile(PACKAGE_PATH),
     source: "package.json",
   });
   return index;
@@ -409,7 +409,7 @@ function createGovernanceManifest(entries, contentForEntry) {
       ...(entry.kind ? { kind: entry.kind } : {}),
       path: entry.path,
       ...(entry.sourcePath ? { source: entry.sourcePath } : {}),
-      sha256: crypto.createHash("sha256").update(contentForEntry(entry)).digest("hex"),
+      sha256: hashTextBuffer(contentForEntry(entry)),
     })),
   };
 }
@@ -1006,8 +1006,12 @@ function writeJsonMinified(filePath, value) {
   fs.writeFileSync(filePath, JSON.stringify(value), "utf8");
 }
 
-function hashFile(filePath) {
-  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+function hashTextFile(filePath) {
+  return hashTextBuffer(fs.readFileSync(filePath));
+}
+
+function hashTextBuffer(buffer) {
+  return crypto.createHash("sha256").update(Buffer.from(buffer.toString("utf8").replace(/\r\n/gu, "\n"), "utf8")).digest("hex");
 }
 
 function assertDirectory(dirPath, message) {

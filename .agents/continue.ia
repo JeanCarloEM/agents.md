@@ -369,6 +369,21 @@ decisoes=Fonte remota recebida define exclusivamente o conjunto gerenciado; esta
 verificacoes=agent:verify=VERIFY_OK scripts=11 indexedFiles=17; UPDATE_RECONCILIATION_FIXTURE_OK; UPDATE_BRANCH_MANIFEST_FIXTURE_OK; UPDATE_TRANSACTION_FIXTURE_OK; dry-run 0.0.5 aprovado; tag v0.0.5 e release estavel com agents-v0.0.5.zip e release-note.txt comprovadas; origin/main=origin/dev apos workflow.
 pendencias=Nenhuma.
 
+FT-021|nome=Canonizacao de hash do manifesto|escopo=Tecnico|prioridade=alta|status=em_andamento|inicio=20260714.213000|atualizacao=20260714.213000
+objetivo=Eliminar divergencia de hash entre checkout CRLF e ZIP/main LF no manifesto declarativo, preservando a verificacao de conteudo e publicar a correcao como patch 0.0.6.
+1/3 Correcao de causa [concluido]
+  1/2 Confirmar divergencia entre hash bruto e texto canonico [concluido]
+  2/2 Canonizar SHA-256 textual no emissor e no parser [concluido]
+2/3 Validacao [concluido]
+  1/2 Exercitar fixture de branch com CRLF/LF e ZIP [concluido]
+  2/2 Regenerar artefato e validar verificacao integral [concluido]
+3/3 Release e fechamento [em_andamento]
+  1/3 Commitar e publicar dev [pendente]
+  2/3 Publicar e comprovar v0.0.6 [pendente]
+  3/3 Convergir main e encerrar FT [pendente]
+decisoes=Hash do manifesto representa conteudo textual UTF-8 com LF canonico; bytes recebidos continuam preservados na materializacao. A versao 0.0.5 permanece historica e a correcao usa patch 0.0.6.
+pendencias=Nenhuma.
+
 FT-017|nome=Extensao local imutavel da governanca distribuida|escopo=Tecnico|prioridade=alta|status=concluido|inicio=20260714.000000|atualizacao=20260714.003000|conclusao=20260714.003000
 objetivo=Impedir que consumidor especialize AGENTS ou associado gerenciado por edicao direta, reservando agents.local, local, hooks e adaptador subordinados e preservaveis; explicitar a excecao da fonte construtiva deste repositorio.
 1/3 Contrato e estado [concluido]

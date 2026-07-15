@@ -342,7 +342,7 @@ function addRemoteFile(files, remoteRoot, relativePath, targetRelativePath = rel
   }
 
   const content = fs.readFileSync(sourcePath);
-  if (expectedHash && hashBuffer(content) !== expectedHash.toLocaleLowerCase("en-US")) {
+  if (expectedHash && hashTextContent(content) !== expectedHash.toLocaleLowerCase("en-US")) {
     throw new Error(`Hash remoto divergente: ${toPosixPath(safeRel)}`);
   }
   files.set(toPosixPath(targetRelativePath), {
