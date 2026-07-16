@@ -29,6 +29,17 @@ O contrato tipado reutilizável fica em `.agents/core/contracts.md`; os metaarqu
 - `agent:upstream:assess -- <proposal.json>` produz grau e resposta concisa para mantenedor; `agent:upstream:apply-assessment` exige autorização e pode notificar colaboradores somente por opção explícita.
 - `agent:test:upstream` verifica sanitização e template sem depender de rede.
 
+### Inbox construtora de issues
+
+`.github/workflows/issues-inbox.yml` recebe somente eventos `issues` de abertura, edição, reabertura ou rotulagem. O payload é sanitizado antes de criar `.agents/local/upstream/inbox/`; o workflow publica essa inbox como artefato por 30 dias e não inclui credenciais ou cabeçalhos.
+
+- `agent:inbox:event -- <evento.json>` valida, sanitiza e indexa um evento localmente.
+- `agent:inbox:evaluate -- <registro.json>` produz `rejected`, `not_recommended`, `recommended` ou `highly_recommended`, sem efeito externo.
+- `agent:inbox:process -- <evento.json> --role constructor` encadeia indexação e avaliação; `--authorize` é obrigatório para comentário e label.
+- `agent:inbox:fetch -- <numero> --role constructor` permite a execução manual; `--dry-run` não emite efeito remoto.
+- `agent:inbox:apply -- <avaliacao.json> --role constructor --authorize` comenta recusas e não-recomendações; nos graus recomendados adiciona somente o label configurado e uma justificativa técnica curta. Aceite, fechamento, alteração de fonte e release permanecem decisões humanas.
+- `agent:test:inbox` testa sanitização, classificação e índice idempotente sem rede.
+
 ### Atualização segura da governança
 
 `agents:update` usa o manifesto versionado recebido no ZIP do release ou na branch primária como definição completa do núcleo gerenciado. O estado local anterior é consultado apenas para converter formatos e remover caminhos antes gerenciados; ele não conserva arquivo que a origem deixou de declarar. `agents.local.md`, `.agents/local/`, `.agents/hooks/` e adaptadores declarados nunca entram no lock, no plano de limpeza ou na sobrescrita.
