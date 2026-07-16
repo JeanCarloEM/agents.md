@@ -5,6 +5,11 @@
   "license": "MPL-2.0",
   "description": "Governanca operacional portavel para agentes IA.",
   "main": "AGENTS.md",
+  "agentsUpstream": {
+    "schema": 1,
+    "upstreamRepository": "JeanCarloEM/agents.md",
+    "candidateRepository": "jcempro/agents.md"
+  },
   "agentsGovernance": {
     "schema": 1,
     "managedScriptPrefixes": [
@@ -28,6 +33,12 @@
     "test": "npm run agent:test",
     "agents:update": "node .agents/core/runtime/scripts/repo-tools.js agent:agents",
     "agent:agents": "node .agents/core/runtime/scripts/repo-tools.js agent:agents",
+    "agent:upstream:check": "node .agents/core/runtime/scripts/repo-tools.js agent:upstream:check",
+    "agent:upstream:prepare": "node .agents/core/runtime/scripts/repo-tools.js agent:upstream:prepare",
+    "agent:upstream:publish": "node .agents/core/runtime/scripts/repo-tools.js agent:upstream:publish",
+    "agent:upstream:assess": "node .agents/core/runtime/scripts/repo-tools.js agent:upstream:assess",
+    "agent:upstream:apply-assessment": "node .agents/core/runtime/scripts/repo-tools.js agent:upstream:apply-assessment",
+    "agent:test:upstream": "node .agents/core/runtime/scripts/repo-tools.js agent:test:upstream",
     "agent:filter": "node .agents/core/runtime/scripts/to-ia.js --command agent:filter",
     "agent:build": "node .agents/core/runtime/scripts/repo-tools.js agent:build",
     "agent:clean": "node .agents/core/runtime/scripts/repo-tools.js agent:clean",
