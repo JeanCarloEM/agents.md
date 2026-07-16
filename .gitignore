@@ -24,6 +24,9 @@ tmp/
 !/.agents/core/update/formats/*.json
 !/.agents/core/update/migrations/
 !/.agents/core/update/migrations/*.js
+!/.agents/meta/
+!/.agents/scenarios/
+!/.agents/scenarios/**/
 
 /src/.agents/*
 !/src/.agents/*.md
@@ -32,3 +35,6 @@ tmp/
 !/src/.agents/core/update/
 !/src/.agents/core/update/formats/
 !/src/.agents/core/update/formats/*.json
+!/src/.agents/meta/
+!/src/.agents/scenarios/
+!/src/.agents/scenarios/**/

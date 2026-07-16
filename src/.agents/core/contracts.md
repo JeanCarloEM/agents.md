@@ -13,3 +13,7 @@ Capacidade/script plugável DEVE declarar `id`, `kind`, `version`, `requires`, `
 ## CT-3 — Eventos e hooks
 
 Evento percorre núcleo → capacidades ordenadas → cenário → adaptador local → retorno inverso de observação; nenhuma camada PODE absorver, renomear ou impedir propagação sem contrato explícito. Hook recebe contexto congelado e resultado estruturado; não altera versão, artefato, metadado ou estado gerenciado fora de setter/ação autorizada. Falha identifica camada, evento e contrato; passthrough sem observação é vedado quando houver estado, efeito externo ou dependência posterior.
+
+## CT-4 — Integração pública
+
+Cliente externo DEVE declarar destino, método, autenticação externa, timeout, limite de resposta, cache, idempotência, retry, sanitização, schema e efeito. Leitura idempotente PODE retentar somente falha transitória; mutação exige autorização explícita e NÃO recebe retry implícito. HTTP não-2xx, rede, timeout, resposta maior, JSON inválido, rate limit e erro de servidor DEVEM retornar resultado estruturado e nunca sucesso inferido. Segredo NÃO integra log, cache, estado, proposta ou artefato.

@@ -20,6 +20,15 @@ O contrato tipado reutilizável fica em `.agents/core/contracts.md`; os metaarqu
 - `npm run agent:verify`: valida scripts, indexador e dist.
 - `npm run agent:agents`: executa atualizacao automatica da governanca operacional pela superficie filtrada, mesclando somente scripts/dependencias declarados em `agentsGovernance` no `package.json` anfitriao.
 
+### Evolução upstream de AGENTS.md
+
+`./AGENTS.md` na raiz rege este repositório construtor; `./src/AGENTS.md` é a aplicação-fonte distribuível e não a sincroniza automaticamente. Em um consumidor, `npm run agent:upstream:check -- --offline` identifica o estado sem rede. A configuração local opcional `.agents/upstream.json` ou `package.json.agentsUpstream` declara `role` (`consumer`, `constructor` ou `dual`), `upstreamRepository`, candidato, limites e cache; candidato não é destino autoritativo.
+
+- `agent:upstream:prepare -- <evidence.json>` sanitiza e grava proposta revisável em extensão local.
+- `agent:upstream:publish -- <proposal.json> --authorize` verifica destino, duplicação e token externo antes de criar issue; sem `--authorize`, nenhuma ação externa ocorre.
+- `agent:upstream:assess -- <proposal.json>` produz grau e resposta concisa para mantenedor; `agent:upstream:apply-assessment` exige autorização e pode notificar colaboradores somente por opção explícita.
+- `agent:test:upstream` verifica sanitização e template sem depender de rede.
+
 ### Atualização segura da governança
 
 `agents:update` usa o manifesto versionado recebido no ZIP do release ou na branch primária como definição completa do núcleo gerenciado. O estado local anterior é consultado apenas para converter formatos e remover caminhos antes gerenciados; ele não conserva arquivo que a origem deixou de declarar. `agents.local.md`, `.agents/local/`, `.agents/hooks/` e adaptadores declarados nunca entram no lock, no plano de limpeza ou na sobrescrita.

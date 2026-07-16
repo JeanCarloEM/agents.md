@@ -4,7 +4,7 @@ Extensão de `AGENTS.md` §0.12. Aplicar `MN-2119`, `MN-PRES`, `MN-OUT`, `MN-CMD
 
 ## AU-1 — fonte e execução
 
-`agents:update`/`agent:agents` DEVE atualizar `AGENTS.md` canônico e cenários gerenciados a partir de `https://github.com/JeanCarloEM/agents.md`; RCF/cenário PODE definir cache, credencial ou toolchain equivalente, mas NÃO DEVE remover, desativar ou redirecionar a fonte sem alteração explícita do AGENTS global. DEVE preferir runtime/biblioteca disponível, NÃO DEVE executar código remoto e só DEVE materializar norma/metadado validados. Em `403` da API, PODE consultar exclusivamente `api.github.com` por `gh api` autenticado, sem ler, registrar, imprimir ou propagar credencial a download. Hash e comparação de conteúdo textual usam UTF-8 com `LF` canônico; lock, download e materialização preservam bytes da origem.
+`agents:update`/`agent:agents` DEVE atualizar `AGENTS.md` canônico e cenários gerenciados a partir do upstream de AGENTS.md resolvido por configuração explícita → metadado oficial → origem declarada → sucessor anunciado → destino canônico validado → candidato configurado. Candidato não é autoridade, e upstream do consumidor/dependência NÃO DEVE substituí-lo por inferência. RCF/cenário PODE definir cache, credencial ou toolchain equivalente, mas não pode redirecionar fonte validada silenciosamente. DEVE preferir runtime/biblioteca disponível, NÃO DEVE executar código remoto e só DEVE materializar norma/metadado validados. Em `403` da API, PODE consultar exclusivamente `api.github.com` por `gh api` autenticado, sem ler, registrar, imprimir ou propagar credencial a download. Hash e comparação de conteúdo textual usam UTF-8 com `LF` canônico; lock, download e materialização preservam bytes da origem.
 
 ## AU-2 — origem e descoberta
 
