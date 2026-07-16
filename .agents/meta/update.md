@@ -1,3 +1,0 @@
-# Atualização
-
-Subordinado a `cli.md` e `../.autoupdate.md`. Abrange descoberta, lock, download, validação, transação, merge de manifesto e commit exclusivo. Manifesto remoto versionado define exaustivamente o estado gerenciado; lock anterior apenas converte e limpa legado comprovado. Metaarquivo/script gerenciado não aceita especialização local; `agents.local.md`, `.agents/local/`, `.agents/hooks/` e adaptador declarado permanecem fora de descoberta, lock, limpeza e sobrescrita. Mudança estrutural usa descritor de linguagem, marcador de variação, parser único e conversor permanente. Colisão, customização ou ambiguidade bloqueia sem sobrescrita.
