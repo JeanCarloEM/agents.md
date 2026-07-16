@@ -24,14 +24,15 @@ const PACKAGE_PATH = path.join(ROOT_DIR, "package.json");
 const DISTRIBUTION_PACKAGE_PATH = path.join(DIST_DIR, "package.json");
 const UPDATE_FORMAT_PATH = path.join(ROOT_DIR, ".agents", "core", "update", "formats", "governance-manifest.v2.json");
 const NORMATIVE_MIRRORS = [
-  "AGENTS.md",
   path.join(".agents", "core", "contracts.md"),
   path.join(".agents", "core", "update", "scenario.md"),
   path.join(".agents", "core", "update", "formats", "governance-manifest.v2.json"),
   path.join(".agents", "core", "concepts", "microconceitos.md"),
   path.join(".agents", "scenarios", "content-publication", "scenario.md"),
+  path.join(".agents", "scenarios", "governance", "upstream-sharing", "scenario.md"),
   path.join(".agents", "scenarios", "release", "scenario.md"),
   path.join(".agents", "scenarios", "web", "page-like", "scenario.md"),
+  path.join(".agents", "meta", "upstream.md"),
 ];
 const ALIEN_SCRIPT_TERMS = [
   "What" + "Send",
@@ -110,6 +111,36 @@ const COMMANDS = {
     run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "update-agents.js"), _args),
     status: "available",
   },
+  "agent:upstream:check": {
+    description: "resolve e consulta o upstream de AGENTS.md com seguranca",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "upstream-share.js"), ["check", ..._args]),
+    status: "available",
+  },
+  "agent:upstream:prepare": {
+    description: "sanitiza e prepara proposta upstream revisavel",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "upstream-share.js"), ["prepare", ..._args]),
+    status: "available",
+  },
+  "agent:upstream:publish": {
+    description: "publica proposta upstream somente com autorizacao explicita",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "upstream-share.js"), ["publish", ..._args]),
+    status: "available",
+  },
+  "agent:upstream:assess": {
+    description: "classifica proposta para decisao manual do mantenedor",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "upstream-share.js"), ["assess", ..._args]),
+    status: "available",
+  },
+  "agent:upstream:apply-assessment": {
+    description: "aplica rotulo e comentario de avaliacao somente com autorizacao",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "upstream-share.js"), ["apply-assessment", ..._args]),
+    status: "available",
+  },
+  "agent:test:upstream": {
+    description: "executa verificacao local do pipeline upstream",
+    run: () => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "upstream-share.js"), ["self-test"]),
+    status: "available",
+  },
 };
 
 Object.assign(COMMANDS, {
@@ -164,8 +195,8 @@ Object.assign(COMMANDS, {
     status: "available",
   },
   "agent:test": {
-    description: "alias seguro de agent:verify",
-    run: () => COMMANDS["agent:verify"].run(),
+    description: "executa verificacao e testes locais da governanca",
+    run: testAll,
     status: "available",
   },
   "agent:lint": {
@@ -279,6 +310,7 @@ const CANONICAL_COMMANDS = [
   "agent:test", "agent:lint", "agent:format", "agent:typecheck", "agent:benchmark", "agent:security", "agent:analyze",
   "agent:deps", "agent:update-deps", "agent:licenses",
   "agent:index", "agent:map", "agent:handoff", "agent:docs", "agent:rcf", "agent:agents",
+  "agent:upstream:check", "agent:upstream:prepare", "agent:upstream:publish", "agent:upstream:assess", "agent:upstream:apply-assessment", "agent:test:upstream",
   "agent:parse-data", "agent:summarize", "agent:convert", "agent:validate-data", "agent:index-data", "agent:query-data",
 ];
 
@@ -430,6 +462,7 @@ function buildDistributionPackage() {
     license: source.license || "MPL-2.0",
     description: source.description || "Governanca operacional portavel para agentes IA.",
     main: source.main || "AGENTS.md",
+    ...(source.agentsUpstream ? { agentsUpstream: source.agentsUpstream } : {}),
     scripts,
     ...(Object.keys(dependencies).length ? { dependencies } : {}),
     ...(Object.keys(optionalDependencies).length ? { optionalDependencies } : {}),
@@ -486,6 +519,12 @@ function verify() {
   return ok("VERIFY_OK", { scripts: checks.length, indexedFiles: index.files.length });
 }
 
+function testAll() {
+  verify();
+  runProcess(process.execPath, [path.join(ROOT_DIR, "test", "upstream-share.test.js")]);
+  return ok("TEST_OK", { suites: 1 });
+}
+
 function validateIndex(index) {
   if (!index || index.schema !== 1 || index.root !== "src" || !Array.isArray(index.files)) {
     throw new Error("index.json invalido.");
@@ -504,8 +543,11 @@ function validateDist() {
   assertFile(path.join(DIST_DIR, ".agents", "core", "update", "scenario.md"), "dist/.agents/core/update/scenario.md ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "core", "concepts", "microconceitos.md"), "dist/.agents/core/concepts/microconceitos.md ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "scenarios", "content-publication", "scenario.md"), "dist/.agents/scenarios/content-publication/scenario.md ausente.");
+  assertFile(path.join(DIST_DIR, ".agents", "scenarios", "governance", "upstream-sharing", "scenario.md"), "dist/.agents/scenarios/governance/upstream-sharing/scenario.md ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "scenarios", "release", "scenario.md"), "dist/.agents/scenarios/release/scenario.md ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "scenarios", "web", "page-like", "scenario.md"), "dist/.agents/scenarios/web/page-like/scenario.md ausente.");
+  assertFile(path.join(DIST_DIR, ".agents", "core", "runtime", "scripts", "public-client.js"), "dist/.agents/core/runtime/scripts/public-client.js ausente.");
+  assertFile(path.join(DIST_DIR, ".agents", "core", "runtime", "scripts", "upstream-share.js"), "dist/.agents/core/runtime/scripts/upstream-share.js ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "scenarios", "release", "scripts", "release-hooks.js"), "dist/.agents/scenarios/release/scripts/release-hooks.js ausente.");
   assertFile(DISTRIBUTION_PACKAGE_PATH, "dist/package.json ausente.");
   assertFile(RELEASE_PATH, "dist/release.json ausente.");

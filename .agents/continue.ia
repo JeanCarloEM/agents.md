@@ -401,8 +401,113 @@ objetivo=Impedir que consumidor especialize AGENTS ou associado gerenciado por e
 decisoes=Associado gerenciado significa arquivo identificado por norma, indice, manifesto ou atualizacao; memoria e extensoes locais nao integram esse conjunto. Consumidor altera comportamento obrigatorio somente por agents.local.md, .agents/local/, .agents/hooks/ ou adaptador declarado; leitura os inclui subordinadamente e atualizacao os preserva. Neste repositorio, src e fonte construtiva do pacote, nao governanca ativa da execucao.
 verificacoes=Falha inicial do to-ia com npm.cmd=EINVAL resolvida por cmd.exe /d /s /c. agent:verify=VERIFY_OK scripts=9 indexedFiles=15; dist e index regenerados; paridade binaria dos seis espelhos normativos=OK; git diff --check=OK; handoff regenerado.
 pendencias=Nenhuma.
+
+FT-022|nome=Taxonomia construtor-consumidor e autoridade normativa|escopo=Tecnico|prioridade=alta|status=concluido|inicio=20260715.235000|atualizacao=20260716.001000|conclusao=20260716.001000
+objetivo=Eliminar ambiguidade entre repositorio de execucao, construtor, consumidor, upstreams e artefatos homonimos, preservando a separacao entre a governanca ativa e a aplicacao distribuivel.
+escopo=RCF, src/AGENTS.md, cenario distribuivel, indice, README e estado; nao altera ./AGENTS.md ativo sem solicitacao manual explicita.
+nao_escopo=Alterar automaticamente consumidores, criar issue externa, publicar release ou atribuir autoridade a src/AGENTS.md no construtor.
+dependencias=Leitura integral concluida de AGENTS.md, RCF.md, src/AGENTS.md, associados, estado Git e solicitacao 20260715.
+arquivos_previstos=RCF.md; src/AGENTS.md; .agents/scenarios/governance/upstream-sharing/scenario.md; .agents/meta/index.json; README.md; index.json; .agents/continue.ia; handoff.md.
+riscos=Confundir fonte construtiva com norma ativa; propagar alteracao de src para ./AGENTS.md; misturar upstream do consumidor com upstream de AGENTS.md; enfraquecer extensoes locais.
+testes=Busca de termos opacos; validacao de referencias; agent:index; agent:build; agent:verify; diff de paridade da aplicacao.
+aceite=Definicoes e autoridade de cada papel sao explicitas; AGENTS raiz permanece inalterado; cenario e indice resolvem; RCF e fonte permanecem sincronizados.
+ordem=1
+1/3 Taxonomia e plano [concluido]
+  1/3 Inventariar normas, fonte, scripts, estado e lacunas [concluido]
+  2/3 Criar FTs com dependencias, riscos, testes e aceite [concluido]
+  3/3 Compactar contexto normativo sem perda [concluido]
+2/3 Normatizacao [concluido]
+  1/3 Especificar papeis, artefatos e upstreams no RCF [concluido]
+  2/3 Criar cenario distribuivel e projetar AGENTS conciso [concluido]
+  3/3 Atualizar indice e documentacao correlata [concluido]
+3/3 Validacao [concluido]
+  1/2 Auditar dominio, autoridade e ausencia de propagacao [concluido]
+  2/2 Registrar resultado e dependencia das FTs seguintes [concluido]
+decisoes=AGENTS.md raiz permanece norma ativa e nao integra a paridade fonte-produto; src/AGENTS.md e a aplicacao distribuivel. Associados distribuidos preservam paridade sob src/.agents e .agents.
+verificacoes=COMPACT_OK; agent:build=DIST_OK; agent:verify=VERIFY_OK scripts=13 indexedFiles=19; git diff -- AGENTS.md sem alteracao.
+pendencias=Nenhuma.
+
+FT-023|nome=Pipeline compartilhavel do consumidor para upstream de AGENTS|escopo=Tecnico|prioridade=alta|status=concluido|inicio=20260715.235000|atualizacao=20260716.001000|conclusao=20260716.001000
+objetivo=Normatizar e implementar o ciclo do consumidor para identificar, classificar, deduplicar, sanitizar, preparar, validar, registrar e acompanhar contribuicoes reutilizaveis ao upstream de AGENTS.md.
+escopo=Cenario upstream-sharing, configuracao declarativa, artefatos de proposta, hooks formais, scripts agent prefixados, testes locais e documentacao tecnica.
+nao_escopo=Publicar issue sem autorizacao, editar artefato gerenciado no consumidor, escolher por mantenedor humano, tratar upstream do consumidor como upstream de AGENTS.md.
+dependencias=FT-022 concluida; contrato CLI, filtro to-ia e extensoes locais existentes.
+arquivos_previstos=.agents/scenarios/governance/upstream-sharing/; .agents/core/runtime/scripts/; .agents/meta/upstream.md; .agents/meta/index.json; package.json; README.md; RCF.md; src/AGENTS.md; index.json.
+riscos=Vazamento de segredo; proposta duplicada; destino nao canonico; rede indisponivel; dupla funcao nao segregada; automatizacao que publique sem autorizacao.
+testes=Fixtures de configuracao/destino/duplicacao/recusa/sanitizacao; dry-run; testes de parametros; node --check; agent:verify; saida JSONL e codigos de erro.
+aceite=Pipeline resolve papel e destino sem inferencia; preserva proposta quando bloqueado; nunca publica sem autorizacao; sanitiza evidencias; diferencia atualizacao, hook local e issue; cada resultado e rastreavel.
+ordem=2
+1/4 Contrato e configuracao [concluido]
+  1/3 Definir entrada declarativa, estados e codigos [concluido]
+  2/3 Definir extensoes, hooks e segregacao de dupla funcao [concluido]
+  3/3 Projetar persistencia sanitizada e reavaliacao [concluido]
+2/4 Descoberta e avaliacao [concluido]
+  1/4 Implementar resolucao de upstream e versao [concluido]
+  2/4 Implementar consulta, deduplicacao e recusas [concluido]
+  3/4 Implementar classificacao, sanitizacao e proposta [concluido]
+  4/4 Implementar validacao e artefato de revisao [concluido]
+3/4 Publicacao e acompanhamento controlados [concluido]
+  1/3 Implementar autorizacao explicita e canal GitHub compativel [concluido]
+  2/3 Implementar registro e sincronizacao de resultado [concluido]
+  3/3 Implementar reavaliacao e protecao contra recorrencia [concluido]
+4/4 Validacao [concluido]
+  1/3 Executar fixtures e falhas de seguranca [concluido]
+  2/3 Auditar saida compacta e determinismo [concluido]
+  3/3 Atualizar memoria e handoff [concluido]
+verificacoes=agent:upstream:check --offline=UPSTREAM_CHECK_OK; agent:test:upstream=UPSTREAM_SELF_TEST_OK; teste de configuracao do atualizador passou com cliente fixture.
+pendencias=Publicacao real de issue requer papel consumidor declarado, destino validado, token externo e --authorize; nao executada.
+
+FT-024|nome=Integracoes externas fail-safe da governanca|escopo=Tecnico|prioridade=alta|status=concluido|inicio=20260715.235000|atualizacao=20260716.001000|conclusao=20260716.001000
+objetivo=Fornecer camada reutilizavel e fail-safe para consultas publicas a GitHub, npm, APIs de IA e analogos, com timeout, retry idempotente, classificacao de resposta e filtragem deterministica.
+escopo=Cliente HTTP local, adaptadores declarados, normalizacao de erros/status/logs, limites, cache controlado, filtro to-ia e configuracao sem segredo.
+nao_escopo=Adicionar chave obrigatoria, dependencias remotas obrigatorias, executar mutacao externa por padrao ou expor segredo em estado/log/artefato.
+dependencias=FT-022 concluida; FT-023 fornece os contratos de consumo; MN-OUT, MN-CLI e contrato de extensoes.
+arquivos_previstos=.agents/core/runtime/scripts/; .agents/core/contracts.md; .agents/meta/ia.md; .agents/meta/upstream.md; .agents/meta/index.json; package.json; RCF.md; testes/fixtures quando aplicaveis.
+riscos=Retry nao idempotente, resposta malformada, rate limit, timeout, segredo em log, dependencia de rede, status HTTP tratado como sucesso.
+testes=Servidor fixture local; timeout; 4xx/5xx; JSON invalido; rate limit; retry limitado; mascaramento; cache; node --check; agent:verify.
+aceite=Chamadas externas possuem timeout, retry limitado somente quando seguro, resposta normalizada, logs sanitizados e falha acionavel; modo offline/dry-run continua funcional.
+ordem=3
+1/3 Contrato comum [concluido]
+  1/3 Definir envelope, limites e classificacao de falhas [concluido]
+  2/3 Definir retry, timeout, cache e sanitizacao [concluido]
+  3/3 Expor configuracao e adaptadores sem segredo [concluido]
+2/3 Implementacao [concluido]
+  1/3 Criar cliente publico fail-safe [concluido]
+  2/3 Integrar adaptadores GitHub, npm e IA opcional [concluido]
+  3/3 Integrar filtro e codigos CLI [concluido]
+3/3 Validacao [concluido]
+  1/3 Exercitar fixtures de rede e falha [concluido]
+  2/3 Auditar ausencia de segredo e efeito externo implicito [concluido]
+  3/3 Registrar resultados para FT-025 [concluido]
+verificacoes=Fixture cobre HTTP 200, 503 e JSON invalido; contrato declara timeout, limite e retry; logs e proposta sanitizam token, bearer e path.
+pendencias=Nenhuma local.
+
+FT-025|nome=Validacao, distribuicao e encerramento da evolucao upstream|escopo=Tecnico|prioridade=alta|status=em_andamento|inicio=20260715.235000|atualizacao=20260716.002000
+objetivo=Validar ponta a ponta a evolucao normativa e operacional, regenerar artefatos distribuiveis e registrar a entrega sem declarar acao externa nao comprovada.
+escopo=Testes de integridade, build, dist, verificacao, documentacao, estado operacional, handoff, commits e convergencia conforme politica vigente.
+nao_escopo=Publicar release ou issue sem versao/autorizacao explicita e sem comprovacao remota.
+dependencias=FT-022, FT-023 e FT-024 concluidas.
+arquivos_previstos=README.md; RCF.md; index.json; dist/; .agents/continue.ia; handoff.md; testes e fixtures criados pelas FTs predecessoras.
+riscos=Paridade quebrada entre fonte e dist; indice obsoleto; teste apenas estatico; alteracao de AGENTS raiz; publicacao presumida.
+testes=agent:index; agent:build; agent:test; agent:lint; agent:verify; verificacao de paridade; dry-run dos comandos upstream; git diff --check; auditoria de estado Git.
+aceite=Todos os criterios das FTs predecessoras passam; artefato distribuivel contem apenas conteudo gerenciado; ./AGENTS.md nao muda; memoria/handoff refletem a conclusao e qualquer impedimento externo permanece explicito.
+ordem=4
+1/3 Validacao integrada [concluido]
+  1/4 Executar testes unitarios e fixtures [concluido]
+  2/4 Executar build, indice, dist e verify [concluido]
+  3/4 Auditar pacote, referencias e paridade [concluido]
+  4/4 Verificar Git e ausencia de segredo [concluido]
+2/3 Registro e commits [em_andamento]
+  1/3 Atualizar RCF, README, memoria e handoff [concluido]
+  2/3 Criar commits funcionais proporcionais [concluido]
+  3/3 Convergir dev para primaria conforme regra [pendente]
+3/3 Encerramento [pendente]
+  1/2 Registrar resultados e impedimentos comprovados [pendente]
+  2/2 Encerrar FTs e produzir relatorio objetivo [pendente]
 verificacoes=CONVERGENCIA_NORMATIVA_OK; node --check release-workflow.js; agent:verify OK; fast-forward 58f41c8..76fa22f publicado em origin/main.
 falhas=agent:verify reconstroi release.json sem metadado de release; detector aceita extensao de gatilho sem autorizacao explicita do RCF; agent:release:trigger pode sobrescrever sinalizador existente.
+verificacoes=agent:test=TEST_OK suites=1; agent:build=DIST_OK files=33; agent:verify=VERIFY_OK scripts=13 indexedFiles=19; DIST_UPSTREAM_CONTRACT_OK; git diff --check OK; AGENTS.md raiz sem diff.
+pendencias=Push de dev, convergencia para a primaria e registro final da FT pendentes nesta etapa.
 
 FT-013|nome=Release estavel do manifesto executavel|escopo=Tecnico|prioridade=alta|status=concluido|inicio=20260711.233000|atualizacao=20260711.235900|conclusao=20260711.235900
 objetivo=Publicar a versao estavel 0.0.1 com manifesto distribuivel, asset verificavel, GitHub Release e convergencia final de dev para a branch primaria.
